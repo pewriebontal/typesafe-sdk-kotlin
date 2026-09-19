@@ -1,0 +1,65 @@
+### Gradle ###
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+!**/src/**/build/
+
+### Kotlin ###
+.kotlin/
+
+### Android ###
+local.properties
+*.apk
+*.aab
+*.ap_
+*.dex
+.cxx/
+captures/
+
+### Secrets and signing ###
+.env
+.env.*
+*.gpg
+*.asc
+*.jks
+*.keystore
+secring.*
+gradle-local.properties
+
+### IntelliJ IDEA / Android Studio ###
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+!**/src/**/out/
+
+### Eclipse ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+bin/
+!**/src/**/bin/
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+### VS Code / Fleet ###
+.vscode/
+.fleet/
+
+### OS ###
+.DS_Store
+Thumbs.db
+
+### Logs and dumps ###
+*.log
+*.hprof

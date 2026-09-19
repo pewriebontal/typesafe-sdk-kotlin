@@ -1,0 +1,680 @@
+public abstract interface class net/bontal/typesafesdk/Answer {
+}
+
+public class net/bontal/typesafesdk/ApiConnectionException : net/bontal/typesafesdk/TypeSafeException {
+}
+
+public abstract class net/bontal/typesafesdk/ApiException : net/bontal/typesafesdk/TypeSafeException {
+	public synthetic fun <init> (ILjava/lang/String;Ljava/lang/String;Lnet/bontal/typesafesdk/Headers;Ljava/lang/String;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getBody ()Ljava/lang/String;
+	public final fun getEndpoint ()Ljava/lang/String;
+	public final fun getHeaders ()Lnet/bontal/typesafesdk/Headers;
+	public final fun getRequestId ()Ljava/lang/String;
+	public final fun getStatusCode ()I
+}
+
+public final class net/bontal/typesafesdk/ApiResponseValidationException : net/bontal/typesafesdk/ApiException {
+	public final fun getFieldPath ()Ljava/lang/String;
+}
+
+public final class net/bontal/typesafesdk/ApiTimeoutException : net/bontal/typesafesdk/ApiConnectionException {
+	public final fun getTimeout-UwyO8pc ()J
+	public final fun getTimeoutMillis ()J
+}
+
+public final class net/bontal/typesafesdk/AuthenticationException : net/bontal/typesafesdk/ApiException {
+}
+
+public final class net/bontal/typesafesdk/BadRequestException : net/bontal/typesafesdk/ApiException {
+}
+
+public final class net/bontal/typesafesdk/ChoiceAnswer : net/bontal/typesafesdk/Answer {
+	public static final field Companion Lnet/bontal/typesafesdk/ChoiceAnswer$Companion;
+	public synthetic fun <init> (Ljava/lang/String;DLjava/util/Map;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public static final fun builder ()Lnet/bontal/typesafesdk/ChoiceAnswer$Builder;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getChoice ()Ljava/lang/String;
+	public final fun getConfidence ()D
+	public final fun getProbabilities ()Ljava/util/Map;
+	public fun hashCode ()I
+	public final fun toBuilder ()Lnet/bontal/typesafesdk/ChoiceAnswer$Builder;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class net/bontal/typesafesdk/ChoiceAnswer$Builder {
+	public final fun build ()Lnet/bontal/typesafesdk/ChoiceAnswer;
+	public final fun choice (Ljava/lang/String;)Lnet/bontal/typesafesdk/ChoiceAnswer$Builder;
+	public final fun confidence (D)Lnet/bontal/typesafesdk/ChoiceAnswer$Builder;
+	public final fun probabilities (Ljava/util/Map;)Lnet/bontal/typesafesdk/ChoiceAnswer$Builder;
+}
+
+public final class net/bontal/typesafesdk/ChoiceAnswer$Companion {
+	public final fun builder ()Lnet/bontal/typesafesdk/ChoiceAnswer$Builder;
+}
+
+public final class net/bontal/typesafesdk/ChoiceQuestion : net/bontal/typesafesdk/Question {
+	public static final field Companion Lnet/bontal/typesafesdk/ChoiceQuestion$Companion;
+	public static final field MAX_CHOICES I
+	public synthetic fun <init> (Lnet/bontal/typesafesdk/Entry;Ljava/util/Map;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public static final fun builder ()Lnet/bontal/typesafesdk/ChoiceQuestion$Builder;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCriteria ()Ljava/util/Map;
+	public fun getInstructions ()Lnet/bontal/typesafesdk/Entry;
+	public fun hashCode ()I
+	public final fun toBuilder ()Lnet/bontal/typesafesdk/ChoiceQuestion$Builder;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class net/bontal/typesafesdk/ChoiceQuestion$Builder {
+	public final fun build ()Lnet/bontal/typesafesdk/ChoiceQuestion;
+	public final fun criteria (Ljava/util/Map;)Lnet/bontal/typesafesdk/ChoiceQuestion$Builder;
+	public final fun instructions (Ljava/lang/String;)Lnet/bontal/typesafesdk/ChoiceQuestion$Builder;
+	public final fun instructions (Lnet/bontal/typesafesdk/Entry;)Lnet/bontal/typesafesdk/ChoiceQuestion$Builder;
+	public final fun putCriterion (Ljava/lang/String;Ljava/lang/String;)Lnet/bontal/typesafesdk/ChoiceQuestion$Builder;
+	public final fun putCriterion (Ljava/lang/String;Lnet/bontal/typesafesdk/Entry;)Lnet/bontal/typesafesdk/ChoiceQuestion$Builder;
+}
+
+public final class net/bontal/typesafesdk/ChoiceQuestion$Companion {
+	public final fun builder ()Lnet/bontal/typesafesdk/ChoiceQuestion$Builder;
+}
+
+public abstract interface class net/bontal/typesafesdk/ConfigModifier {
+	public abstract fun modify (Lnet/bontal/typesafesdk/TypeSafeConfig$Builder;)V
+}
+
+public abstract interface class net/bontal/typesafesdk/Entry {
+	public static final field Companion Lnet/bontal/typesafesdk/Entry$Companion;
+	public static fun of (Ljava/lang/String;)Lnet/bontal/typesafesdk/Entry;
+	public static fun of (Lkotlinx/serialization/json/JsonArray;)Lnet/bontal/typesafesdk/Entry;
+	public static fun of (Lkotlinx/serialization/json/JsonObject;)Lnet/bontal/typesafesdk/Entry;
+}
+
+public final class net/bontal/typesafesdk/Entry$Array : net/bontal/typesafesdk/Entry {
+	public fun <init> (Lkotlinx/serialization/json/JsonArray;)V
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getValue ()Lkotlinx/serialization/json/JsonArray;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class net/bontal/typesafesdk/Entry$Companion {
+	public final fun of (Ljava/lang/String;)Lnet/bontal/typesafesdk/Entry;
+	public final fun of (Lkotlinx/serialization/json/JsonArray;)Lnet/bontal/typesafesdk/Entry;
+	public final fun of (Lkotlinx/serialization/json/JsonObject;)Lnet/bontal/typesafesdk/Entry;
+}
+
+public final class net/bontal/typesafesdk/Entry$Object : net/bontal/typesafesdk/Entry {
+	public fun <init> (Lkotlinx/serialization/json/JsonObject;)V
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getValue ()Lkotlinx/serialization/json/JsonObject;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class net/bontal/typesafesdk/Entry$Text : net/bontal/typesafesdk/Entry {
+	public fun <init> (Ljava/lang/String;)V
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getValue ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class net/bontal/typesafesdk/EntryKt {
+	public static final synthetic fun Entry (Ljava/lang/String;)Lnet/bontal/typesafesdk/Entry;
+	public static final synthetic fun Entry (Lkotlinx/serialization/json/JsonArray;)Lnet/bontal/typesafesdk/Entry;
+	public static final synthetic fun Entry (Lkotlinx/serialization/json/JsonObject;)Lnet/bontal/typesafesdk/Entry;
+}
+
+public final class net/bontal/typesafesdk/Headers {
+	public synthetic fun <init> (Ljava/util/Map;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun get (Ljava/lang/String;)Ljava/lang/String;
+	public final fun getNames ()Ljava/util/Set;
+	public fun hashCode ()I
+	public final fun toMap ()Ljava/util/Map;
+	public fun toString ()Ljava/lang/String;
+	public final fun values (Ljava/lang/String;)Ljava/util/List;
+}
+
+public abstract interface class net/bontal/typesafesdk/HttpClientConfigurer {
+	public abstract fun configure (Lio/ktor/client/HttpClientConfig;)V
+}
+
+public final class net/bontal/typesafesdk/HttpResponseFor {
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getBody ()Ljava/lang/String;
+	public final fun getHeaders ()Lnet/bontal/typesafesdk/Headers;
+	public final fun getRequestId ()Ljava/lang/String;
+	public final fun getStatusCode ()I
+	public final fun getValue ()Ljava/lang/Object;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class net/bontal/typesafesdk/InternalServerException : net/bontal/typesafesdk/ApiException {
+}
+
+public final class net/bontal/typesafesdk/LogLevel : java/lang/Enum {
+	public static final field DEBUG Lnet/bontal/typesafesdk/LogLevel;
+	public static final field ERROR Lnet/bontal/typesafesdk/LogLevel;
+	public static final field INFO Lnet/bontal/typesafesdk/LogLevel;
+	public static final field OFF Lnet/bontal/typesafesdk/LogLevel;
+	public static final field WARN Lnet/bontal/typesafesdk/LogLevel;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lnet/bontal/typesafesdk/LogLevel;
+	public static fun values ()[Lnet/bontal/typesafesdk/LogLevel;
+}
+
+public final class net/bontal/typesafesdk/ModelCard {
+	public static final field Companion Lnet/bontal/typesafesdk/ModelCard$Companion;
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public static final fun builder ()Lnet/bontal/typesafesdk/ModelCard$Builder;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getDescription ()Ljava/lang/String;
+	public final fun getName ()Ljava/lang/String;
+	public final fun getReleaseDate ()Ljava/lang/String;
+	public fun hashCode ()I
+	public final fun toBuilder ()Lnet/bontal/typesafesdk/ModelCard$Builder;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class net/bontal/typesafesdk/ModelCard$Builder {
+	public final fun build ()Lnet/bontal/typesafesdk/ModelCard;
+	public final fun description (Ljava/lang/String;)Lnet/bontal/typesafesdk/ModelCard$Builder;
+	public final fun name (Ljava/lang/String;)Lnet/bontal/typesafesdk/ModelCard$Builder;
+	public final fun releaseDate (Ljava/lang/String;)Lnet/bontal/typesafesdk/ModelCard$Builder;
+}
+
+public final class net/bontal/typesafesdk/ModelCard$Companion {
+	public final fun builder ()Lnet/bontal/typesafesdk/ModelCard$Builder;
+}
+
+public final class net/bontal/typesafesdk/NotFoundException : net/bontal/typesafesdk/ApiException {
+}
+
+public final class net/bontal/typesafesdk/NoulAnswer : net/bontal/typesafesdk/Answer {
+	public static final field Companion Lnet/bontal/typesafesdk/NoulAnswer$Companion;
+	public synthetic fun <init> (DLkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public static final fun builder ()Lnet/bontal/typesafesdk/NoulAnswer$Builder;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getNoul ()D
+	public fun hashCode ()I
+	public final fun toBuilder ()Lnet/bontal/typesafesdk/NoulAnswer$Builder;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class net/bontal/typesafesdk/NoulAnswer$Builder {
+	public final fun build ()Lnet/bontal/typesafesdk/NoulAnswer;
+	public final fun noul (D)Lnet/bontal/typesafesdk/NoulAnswer$Builder;
+}
+
+public final class net/bontal/typesafesdk/NoulAnswer$Companion {
+	public final fun builder ()Lnet/bontal/typesafesdk/NoulAnswer$Builder;
+}
+
+public final class net/bontal/typesafesdk/NoulCriteria {
+	public static final field Companion Lnet/bontal/typesafesdk/NoulCriteria$Companion;
+	public synthetic fun <init> (Lnet/bontal/typesafesdk/Entry;Lnet/bontal/typesafesdk/Entry;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public static final fun builder ()Lnet/bontal/typesafesdk/NoulCriteria$Builder;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getNo ()Lnet/bontal/typesafesdk/Entry;
+	public final fun getYes ()Lnet/bontal/typesafesdk/Entry;
+	public fun hashCode ()I
+	public final fun toBuilder ()Lnet/bontal/typesafesdk/NoulCriteria$Builder;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class net/bontal/typesafesdk/NoulCriteria$Builder {
+	public final fun build ()Lnet/bontal/typesafesdk/NoulCriteria;
+	public final fun no (Ljava/lang/String;)Lnet/bontal/typesafesdk/NoulCriteria$Builder;
+	public final fun no (Lnet/bontal/typesafesdk/Entry;)Lnet/bontal/typesafesdk/NoulCriteria$Builder;
+	public final fun yes (Ljava/lang/String;)Lnet/bontal/typesafesdk/NoulCriteria$Builder;
+	public final fun yes (Lnet/bontal/typesafesdk/Entry;)Lnet/bontal/typesafesdk/NoulCriteria$Builder;
+}
+
+public final class net/bontal/typesafesdk/NoulCriteria$Companion {
+	public final fun builder ()Lnet/bontal/typesafesdk/NoulCriteria$Builder;
+}
+
+public final class net/bontal/typesafesdk/NoulQuestion : net/bontal/typesafesdk/Question {
+	public static final field Companion Lnet/bontal/typesafesdk/NoulQuestion$Companion;
+	public synthetic fun <init> (Lnet/bontal/typesafesdk/Entry;Lnet/bontal/typesafesdk/NoulCriteria;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public static final fun builder ()Lnet/bontal/typesafesdk/NoulQuestion$Builder;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCriteria ()Lnet/bontal/typesafesdk/NoulCriteria;
+	public fun getInstructions ()Lnet/bontal/typesafesdk/Entry;
+	public fun hashCode ()I
+	public final fun toBuilder ()Lnet/bontal/typesafesdk/NoulQuestion$Builder;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class net/bontal/typesafesdk/NoulQuestion$Builder {
+	public final fun build ()Lnet/bontal/typesafesdk/NoulQuestion;
+	public final fun criteria (Lnet/bontal/typesafesdk/NoulCriteria;)Lnet/bontal/typesafesdk/NoulQuestion$Builder;
+	public final fun instructions (Ljava/lang/String;)Lnet/bontal/typesafesdk/NoulQuestion$Builder;
+	public final fun instructions (Lnet/bontal/typesafesdk/Entry;)Lnet/bontal/typesafesdk/NoulQuestion$Builder;
+}
+
+public final class net/bontal/typesafesdk/NoulQuestion$Companion {
+	public final fun builder ()Lnet/bontal/typesafesdk/NoulQuestion$Builder;
+}
+
+public final class net/bontal/typesafesdk/PermissionDeniedException : net/bontal/typesafesdk/ApiException {
+}
+
+public abstract interface class net/bontal/typesafesdk/Question {
+	public abstract fun getInstructions ()Lnet/bontal/typesafesdk/Entry;
+}
+
+public final class net/bontal/typesafesdk/QuestionKt {
+	public static final synthetic fun ChoiceQuestion (Lkotlin/jvm/functions/Function1;)Lnet/bontal/typesafesdk/ChoiceQuestion;
+	public static final synthetic fun NoulCriteria (Lkotlin/jvm/functions/Function1;)Lnet/bontal/typesafesdk/NoulCriteria;
+	public static final synthetic fun NoulQuestion (Lkotlin/jvm/functions/Function1;)Lnet/bontal/typesafesdk/NoulQuestion;
+	public static final synthetic fun ScoreQuestion (Lkotlin/jvm/functions/Function1;)Lnet/bontal/typesafesdk/ScoreQuestion;
+}
+
+public final class net/bontal/typesafesdk/RateLimitException : net/bontal/typesafesdk/ApiException {
+	public final fun getRetryAfterMillis ()Ljava/lang/Long;
+}
+
+public final class net/bontal/typesafesdk/RawQuestion : net/bontal/typesafesdk/Question {
+	public fun <init> (Lkotlinx/serialization/json/JsonObject;)V
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getInstructions ()Lnet/bontal/typesafesdk/Entry;
+	public final fun getJson ()Lkotlinx/serialization/json/JsonObject;
+	public final fun getType ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class net/bontal/typesafesdk/RequestOptions {
+	public static final field Companion Lnet/bontal/typesafesdk/RequestOptions$Companion;
+	public static final field NONE Lnet/bontal/typesafesdk/RequestOptions;
+	public synthetic fun <init> (Lkotlin/time/Duration;Lnet/bontal/typesafesdk/RetryStrategy;Ljava/util/Map;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public static final fun builder ()Lnet/bontal/typesafesdk/RequestOptions$Builder;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getHeaders ()Ljava/util/Map;
+	public final fun getRetry ()Lnet/bontal/typesafesdk/RetryStrategy;
+	public final fun getTimeout-FghU774 ()Lkotlin/time/Duration;
+	public final fun getTimeoutMillis ()Ljava/lang/Long;
+	public fun hashCode ()I
+	public final fun toBuilder ()Lnet/bontal/typesafesdk/RequestOptions$Builder;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class net/bontal/typesafesdk/RequestOptions$Builder {
+	public final fun build ()Lnet/bontal/typesafesdk/RequestOptions;
+	public final fun headers (Ljava/util/Map;)Lnet/bontal/typesafesdk/RequestOptions$Builder;
+	public final fun putHeader (Ljava/lang/String;Ljava/lang/String;)Lnet/bontal/typesafesdk/RequestOptions$Builder;
+	public final fun retry (Lnet/bontal/typesafesdk/RetryStrategy;)Lnet/bontal/typesafesdk/RequestOptions$Builder;
+	public final fun timeout-BwNAW2A (Lkotlin/time/Duration;)Lnet/bontal/typesafesdk/RequestOptions$Builder;
+	public final fun timeoutMillis (J)Lnet/bontal/typesafesdk/RequestOptions$Builder;
+}
+
+public final class net/bontal/typesafesdk/RequestOptions$Companion {
+	public final fun builder ()Lnet/bontal/typesafesdk/RequestOptions$Builder;
+}
+
+public final class net/bontal/typesafesdk/RequestOptionsKt {
+	public static final synthetic fun RequestOptions (Lkotlin/jvm/functions/Function1;)Lnet/bontal/typesafesdk/RequestOptions;
+}
+
+public final class net/bontal/typesafesdk/RetryStrategy {
+	public static final field Companion Lnet/bontal/typesafesdk/RetryStrategy$Companion;
+	public static final field DEFAULT Lnet/bontal/typesafesdk/RetryStrategy;
+	public static final field DEFAULT_RETRYABLE_STATUSES Ljava/util/Set;
+	public static final field NONE Lnet/bontal/typesafesdk/RetryStrategy;
+	public synthetic fun <init> (IJJDLjava/util/Set;ZJZZLkotlin/time/Duration;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public static final fun builder ()Lnet/bontal/typesafesdk/RetryStrategy$Builder;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getBaseDelay-UwyO8pc ()J
+	public final fun getBaseDelayMillis ()J
+	public final fun getJitter ()D
+	public final fun getMaxDelay-UwyO8pc ()J
+	public final fun getMaxDelayMillis ()J
+	public final fun getMaxRetries ()I
+	public final fun getMaxRetryAfter-UwyO8pc ()J
+	public final fun getMaxRetryAfterMillis ()J
+	public final fun getRespectRetryAfter ()Z
+	public final fun getRetryConnectionErrors ()Z
+	public final fun getRetryTimeouts ()Z
+	public final fun getRetryableStatuses ()Ljava/util/Set;
+	public final fun getTotalTimeout-FghU774 ()Lkotlin/time/Duration;
+	public final fun getTotalTimeoutMillis ()Ljava/lang/Long;
+	public fun hashCode ()I
+	public final fun toBuilder ()Lnet/bontal/typesafesdk/RetryStrategy$Builder;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class net/bontal/typesafesdk/RetryStrategy$Builder {
+	public final fun baseDelay-LRDsOJo (J)Lnet/bontal/typesafesdk/RetryStrategy$Builder;
+	public final fun baseDelayMillis (J)Lnet/bontal/typesafesdk/RetryStrategy$Builder;
+	public final fun build ()Lnet/bontal/typesafesdk/RetryStrategy;
+	public final fun jitter (D)Lnet/bontal/typesafesdk/RetryStrategy$Builder;
+	public final fun maxDelay-LRDsOJo (J)Lnet/bontal/typesafesdk/RetryStrategy$Builder;
+	public final fun maxDelayMillis (J)Lnet/bontal/typesafesdk/RetryStrategy$Builder;
+	public final fun maxRetries (I)Lnet/bontal/typesafesdk/RetryStrategy$Builder;
+	public final fun maxRetryAfter-LRDsOJo (J)Lnet/bontal/typesafesdk/RetryStrategy$Builder;
+	public final fun maxRetryAfterMillis (J)Lnet/bontal/typesafesdk/RetryStrategy$Builder;
+	public final fun noTotalTimeout ()Lnet/bontal/typesafesdk/RetryStrategy$Builder;
+	public final fun respectRetryAfter (Z)Lnet/bontal/typesafesdk/RetryStrategy$Builder;
+	public final fun retryConnectionErrors (Z)Lnet/bontal/typesafesdk/RetryStrategy$Builder;
+	public final fun retryTimeouts (Z)Lnet/bontal/typesafesdk/RetryStrategy$Builder;
+	public final fun retryableStatuses (Ljava/util/Set;)Lnet/bontal/typesafesdk/RetryStrategy$Builder;
+	public final fun totalTimeout-BwNAW2A (Lkotlin/time/Duration;)Lnet/bontal/typesafesdk/RetryStrategy$Builder;
+	public final fun totalTimeoutMillis (J)Lnet/bontal/typesafesdk/RetryStrategy$Builder;
+}
+
+public final class net/bontal/typesafesdk/RetryStrategy$Companion {
+	public final fun builder ()Lnet/bontal/typesafesdk/RetryStrategy$Builder;
+}
+
+public final class net/bontal/typesafesdk/RetryStrategyKt {
+	public static final synthetic fun RetryStrategy (Lkotlin/jvm/functions/Function1;)Lnet/bontal/typesafesdk/RetryStrategy;
+}
+
+public final class net/bontal/typesafesdk/ScoreAnswer : net/bontal/typesafesdk/Answer {
+	public static final field Companion Lnet/bontal/typesafesdk/ScoreAnswer$Companion;
+	public synthetic fun <init> (DDLjava/util/Map;Ljava/util/Map;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public static final fun builder ()Lnet/bontal/typesafesdk/ScoreAnswer$Builder;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getConfidence ()D
+	public final fun getLegend ()Ljava/util/Map;
+	public final fun getProbabilities ()Ljava/util/Map;
+	public final fun getScore ()D
+	public fun hashCode ()I
+	public final fun toBuilder ()Lnet/bontal/typesafesdk/ScoreAnswer$Builder;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class net/bontal/typesafesdk/ScoreAnswer$Builder {
+	public final fun build ()Lnet/bontal/typesafesdk/ScoreAnswer;
+	public final fun confidence (D)Lnet/bontal/typesafesdk/ScoreAnswer$Builder;
+	public final fun legend (Ljava/util/Map;)Lnet/bontal/typesafesdk/ScoreAnswer$Builder;
+	public final fun probabilities (Ljava/util/Map;)Lnet/bontal/typesafesdk/ScoreAnswer$Builder;
+	public final fun score (D)Lnet/bontal/typesafesdk/ScoreAnswer$Builder;
+}
+
+public final class net/bontal/typesafesdk/ScoreAnswer$Companion {
+	public final fun builder ()Lnet/bontal/typesafesdk/ScoreAnswer$Builder;
+}
+
+public final class net/bontal/typesafesdk/ScoreQuestion : net/bontal/typesafesdk/Question {
+	public static final field Companion Lnet/bontal/typesafesdk/ScoreQuestion$Companion;
+	public static final field MAX_LEVELS I
+	public synthetic fun <init> (Lnet/bontal/typesafesdk/Entry;Ljava/util/List;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public static final fun builder ()Lnet/bontal/typesafesdk/ScoreQuestion$Builder;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCriteria ()Ljava/util/List;
+	public fun getInstructions ()Lnet/bontal/typesafesdk/Entry;
+	public fun hashCode ()I
+	public final fun toBuilder ()Lnet/bontal/typesafesdk/ScoreQuestion$Builder;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class net/bontal/typesafesdk/ScoreQuestion$Builder {
+	public final fun addCriterion (Ljava/lang/String;)Lnet/bontal/typesafesdk/ScoreQuestion$Builder;
+	public final fun addCriterion (Lnet/bontal/typesafesdk/Entry;)Lnet/bontal/typesafesdk/ScoreQuestion$Builder;
+	public final fun build ()Lnet/bontal/typesafesdk/ScoreQuestion;
+	public final fun criteria (Ljava/util/List;)Lnet/bontal/typesafesdk/ScoreQuestion$Builder;
+	public final fun instructions (Ljava/lang/String;)Lnet/bontal/typesafesdk/ScoreQuestion$Builder;
+	public final fun instructions (Lnet/bontal/typesafesdk/Entry;)Lnet/bontal/typesafesdk/ScoreQuestion$Builder;
+}
+
+public final class net/bontal/typesafesdk/ScoreQuestion$Companion {
+	public final fun builder ()Lnet/bontal/typesafesdk/ScoreQuestion$Builder;
+}
+
+public final class net/bontal/typesafesdk/SystemOneKt {
+	public static final synthetic fun SystemOneRequest (Lkotlin/jvm/functions/Function1;)Lnet/bontal/typesafesdk/SystemOneRequest;
+}
+
+public final class net/bontal/typesafesdk/SystemOneRequest {
+	public static final field Companion Lnet/bontal/typesafesdk/SystemOneRequest$Companion;
+	public synthetic fun <init> (Lnet/bontal/typesafesdk/Entry;Ljava/util/Map;Ljava/lang/String;Ljava/util/Map;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public static final fun builder ()Lnet/bontal/typesafesdk/SystemOneRequest$Builder;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAdditionalBodyProperties ()Ljava/util/Map;
+	public final fun getModel ()Ljava/lang/String;
+	public final fun getQuestions ()Ljava/util/Map;
+	public final fun getState ()Lnet/bontal/typesafesdk/Entry;
+	public fun hashCode ()I
+	public final fun toBuilder ()Lnet/bontal/typesafesdk/SystemOneRequest$Builder;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class net/bontal/typesafesdk/SystemOneRequest$Builder {
+	public final fun additionalBodyProperties (Ljava/util/Map;)Lnet/bontal/typesafesdk/SystemOneRequest$Builder;
+	public final fun build ()Lnet/bontal/typesafesdk/SystemOneRequest;
+	public final fun model (Ljava/lang/String;)Lnet/bontal/typesafesdk/SystemOneRequest$Builder;
+	public final fun putAdditionalBodyProperty (Ljava/lang/String;Lkotlinx/serialization/json/JsonElement;)Lnet/bontal/typesafesdk/SystemOneRequest$Builder;
+	public final fun putQuestion (Ljava/lang/String;Lnet/bontal/typesafesdk/Question;)Lnet/bontal/typesafesdk/SystemOneRequest$Builder;
+	public final fun questions (Ljava/util/Map;)Lnet/bontal/typesafesdk/SystemOneRequest$Builder;
+	public final fun state (Ljava/lang/String;)Lnet/bontal/typesafesdk/SystemOneRequest$Builder;
+	public final fun state (Lnet/bontal/typesafesdk/Entry;)Lnet/bontal/typesafesdk/SystemOneRequest$Builder;
+}
+
+public final class net/bontal/typesafesdk/SystemOneRequest$Companion {
+	public final fun builder ()Lnet/bontal/typesafesdk/SystemOneRequest$Builder;
+}
+
+public final class net/bontal/typesafesdk/SystemOneResult {
+	public static final field Companion Lnet/bontal/typesafesdk/SystemOneResult$Companion;
+	public synthetic fun <init> (Ljava/lang/String;Ljava/util/Map;Lnet/bontal/typesafesdk/TokenUsage;Ljava/lang/String;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public static final fun builder ()Lnet/bontal/typesafesdk/SystemOneResult$Builder;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAnswers ()Ljava/util/Map;
+	public final fun getChoices ()Ljava/util/Map;
+	public final fun getModel ()Ljava/lang/String;
+	public final fun getNouls ()Ljava/util/Map;
+	public final fun getRequestId ()Ljava/lang/String;
+	public final fun getScores ()Ljava/util/Map;
+	public final fun getUsage ()Lnet/bontal/typesafesdk/TokenUsage;
+	public fun hashCode ()I
+	public final fun toBuilder ()Lnet/bontal/typesafesdk/SystemOneResult$Builder;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class net/bontal/typesafesdk/SystemOneResult$Builder {
+	public final fun answers (Ljava/util/Map;)Lnet/bontal/typesafesdk/SystemOneResult$Builder;
+	public final fun build ()Lnet/bontal/typesafesdk/SystemOneResult;
+	public final fun model (Ljava/lang/String;)Lnet/bontal/typesafesdk/SystemOneResult$Builder;
+	public final fun putAnswer (Ljava/lang/String;Lnet/bontal/typesafesdk/Answer;)Lnet/bontal/typesafesdk/SystemOneResult$Builder;
+	public final fun requestId (Ljava/lang/String;)Lnet/bontal/typesafesdk/SystemOneResult$Builder;
+	public final fun usage (Lnet/bontal/typesafesdk/TokenUsage;)Lnet/bontal/typesafesdk/SystemOneResult$Builder;
+}
+
+public final class net/bontal/typesafesdk/SystemOneResult$Companion {
+	public final fun builder ()Lnet/bontal/typesafesdk/SystemOneResult$Builder;
+}
+
+public final class net/bontal/typesafesdk/TokenUsage {
+	public static final field Companion Lnet/bontal/typesafesdk/TokenUsage$Companion;
+	public synthetic fun <init> (JJLkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public static final fun builder ()Lnet/bontal/typesafesdk/TokenUsage$Builder;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getInputTokens ()J
+	public final fun getOutputTokens ()J
+	public fun hashCode ()I
+	public final fun toBuilder ()Lnet/bontal/typesafesdk/TokenUsage$Builder;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class net/bontal/typesafesdk/TokenUsage$Builder {
+	public final fun build ()Lnet/bontal/typesafesdk/TokenUsage;
+	public final fun inputTokens (J)Lnet/bontal/typesafesdk/TokenUsage$Builder;
+	public final fun outputTokens (J)Lnet/bontal/typesafesdk/TokenUsage$Builder;
+}
+
+public final class net/bontal/typesafesdk/TokenUsage$Companion {
+	public final fun builder ()Lnet/bontal/typesafesdk/TokenUsage$Builder;
+}
+
+public abstract interface class net/bontal/typesafesdk/TypeSafeClient : java/lang/AutoCloseable {
+	public static final field Companion Lnet/bontal/typesafesdk/TypeSafeClient$Companion;
+	public abstract fun async ()Lnet/bontal/typesafesdk/TypeSafeClientAsync;
+	public static fun builder ()Lnet/bontal/typesafesdk/TypeSafeClient$Builder;
+	public abstract fun close ()V
+	public static fun fromEnv ()Lnet/bontal/typesafesdk/TypeSafeClient;
+	public fun models ()Ljava/util/List;
+	public abstract fun models (Lnet/bontal/typesafesdk/RequestOptions;)Ljava/util/List;
+	public fun systemOne (Lnet/bontal/typesafesdk/SystemOneRequest;)Lnet/bontal/typesafesdk/SystemOneResult;
+	public abstract fun systemOne (Lnet/bontal/typesafesdk/SystemOneRequest;Lnet/bontal/typesafesdk/RequestOptions;)Lnet/bontal/typesafesdk/SystemOneResult;
+	public abstract fun withOptions (Lnet/bontal/typesafesdk/ConfigModifier;)Lnet/bontal/typesafesdk/TypeSafeClient;
+	public abstract fun withRawResponse ()Lnet/bontal/typesafesdk/TypeSafeClientRaw;
+}
+
+public final class net/bontal/typesafesdk/TypeSafeClient$Builder {
+	public final fun apiKey (Ljava/lang/String;)Lnet/bontal/typesafesdk/TypeSafeClient$Builder;
+	public final fun baseUrl (Ljava/lang/String;)Lnet/bontal/typesafesdk/TypeSafeClient$Builder;
+	public final fun build ()Lnet/bontal/typesafesdk/TypeSafeClient;
+	public final fun defaultModel (Ljava/lang/String;)Lnet/bontal/typesafesdk/TypeSafeClient$Builder;
+	public final fun engine (Lio/ktor/client/engine/HttpClientEngine;)Lnet/bontal/typesafesdk/TypeSafeClient$Builder;
+	public final fun headers (Ljava/util/Map;)Lnet/bontal/typesafesdk/TypeSafeClient$Builder;
+	public final fun httpClientConfig (Lnet/bontal/typesafesdk/HttpClientConfigurer;)Lnet/bontal/typesafesdk/TypeSafeClient$Builder;
+	public final fun logLevel (Lnet/bontal/typesafesdk/LogLevel;)Lnet/bontal/typesafesdk/TypeSafeClient$Builder;
+	public final fun logger (Lnet/bontal/typesafesdk/TypeSafeLogger;)Lnet/bontal/typesafesdk/TypeSafeClient$Builder;
+	public final fun putHeader (Ljava/lang/String;Ljava/lang/String;)Lnet/bontal/typesafesdk/TypeSafeClient$Builder;
+	public final fun retry (Lnet/bontal/typesafesdk/RetryStrategy;)Lnet/bontal/typesafesdk/TypeSafeClient$Builder;
+	public final fun timeout-LRDsOJo (J)Lnet/bontal/typesafesdk/TypeSafeClient$Builder;
+	public final fun timeoutMillis (J)Lnet/bontal/typesafesdk/TypeSafeClient$Builder;
+}
+
+public final class net/bontal/typesafesdk/TypeSafeClient$Companion {
+	public final fun builder ()Lnet/bontal/typesafesdk/TypeSafeClient$Builder;
+	public final fun fromEnv ()Lnet/bontal/typesafesdk/TypeSafeClient;
+}
+
+public final class net/bontal/typesafesdk/TypeSafeClient$DefaultImpls {
+	public static fun models (Lnet/bontal/typesafesdk/TypeSafeClient;)Ljava/util/List;
+	public static fun systemOne (Lnet/bontal/typesafesdk/TypeSafeClient;Lnet/bontal/typesafesdk/SystemOneRequest;)Lnet/bontal/typesafesdk/SystemOneResult;
+}
+
+public abstract interface class net/bontal/typesafesdk/TypeSafeClientAsync : java/lang/AutoCloseable {
+	public abstract fun close ()V
+	public fun models (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun models (Lnet/bontal/typesafesdk/RequestOptions;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun sync ()Lnet/bontal/typesafesdk/TypeSafeClient;
+	public fun systemOne (Lnet/bontal/typesafesdk/SystemOneRequest;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun systemOne (Lnet/bontal/typesafesdk/SystemOneRequest;Lnet/bontal/typesafesdk/RequestOptions;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun withOptions (Lnet/bontal/typesafesdk/ConfigModifier;)Lnet/bontal/typesafesdk/TypeSafeClientAsync;
+	public abstract fun withRawResponse ()Lnet/bontal/typesafesdk/TypeSafeClientRawAsync;
+}
+
+public final class net/bontal/typesafesdk/TypeSafeClientAsync$DefaultImpls {
+	public static fun models (Lnet/bontal/typesafesdk/TypeSafeClientAsync;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static fun systemOne (Lnet/bontal/typesafesdk/TypeSafeClientAsync;Lnet/bontal/typesafesdk/SystemOneRequest;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class net/bontal/typesafesdk/TypeSafeClientKt {
+	public static final synthetic fun TypeSafeClient (Lkotlin/jvm/functions/Function1;)Lnet/bontal/typesafesdk/TypeSafeClient;
+	public static final synthetic fun TypeSafeClient (Lnet/bontal/typesafesdk/TypeSafeConfig;)Lnet/bontal/typesafesdk/TypeSafeClient;
+	public static final synthetic fun TypeSafeClientAsync (Lkotlin/jvm/functions/Function1;)Lnet/bontal/typesafesdk/TypeSafeClientAsync;
+	public static final synthetic fun TypeSafeClientAsync (Lnet/bontal/typesafesdk/TypeSafeConfig;)Lnet/bontal/typesafesdk/TypeSafeClientAsync;
+}
+
+public abstract interface class net/bontal/typesafesdk/TypeSafeClientRaw {
+	public fun models ()Lnet/bontal/typesafesdk/HttpResponseFor;
+	public abstract fun models (Lnet/bontal/typesafesdk/RequestOptions;)Lnet/bontal/typesafesdk/HttpResponseFor;
+	public fun systemOne (Lnet/bontal/typesafesdk/SystemOneRequest;)Lnet/bontal/typesafesdk/HttpResponseFor;
+	public abstract fun systemOne (Lnet/bontal/typesafesdk/SystemOneRequest;Lnet/bontal/typesafesdk/RequestOptions;)Lnet/bontal/typesafesdk/HttpResponseFor;
+}
+
+public final class net/bontal/typesafesdk/TypeSafeClientRaw$DefaultImpls {
+	public static fun models (Lnet/bontal/typesafesdk/TypeSafeClientRaw;)Lnet/bontal/typesafesdk/HttpResponseFor;
+	public static fun systemOne (Lnet/bontal/typesafesdk/TypeSafeClientRaw;Lnet/bontal/typesafesdk/SystemOneRequest;)Lnet/bontal/typesafesdk/HttpResponseFor;
+}
+
+public abstract interface class net/bontal/typesafesdk/TypeSafeClientRawAsync {
+	public fun models (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun models (Lnet/bontal/typesafesdk/RequestOptions;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun systemOne (Lnet/bontal/typesafesdk/SystemOneRequest;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun systemOne (Lnet/bontal/typesafesdk/SystemOneRequest;Lnet/bontal/typesafesdk/RequestOptions;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class net/bontal/typesafesdk/TypeSafeClientRawAsync$DefaultImpls {
+	public static fun models (Lnet/bontal/typesafesdk/TypeSafeClientRawAsync;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static fun systemOne (Lnet/bontal/typesafesdk/TypeSafeClientRawAsync;Lnet/bontal/typesafesdk/SystemOneRequest;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class net/bontal/typesafesdk/TypeSafeConfig {
+	public static final field API_KEY_ENV Ljava/lang/String;
+	public static final field API_KEY_PROPERTY Ljava/lang/String;
+	public static final field BASE_URL_ENV Ljava/lang/String;
+	public static final field BASE_URL_PROPERTY Ljava/lang/String;
+	public static final field Companion Lnet/bontal/typesafesdk/TypeSafeConfig$Companion;
+	public static final field DEFAULT_BASE_URL Ljava/lang/String;
+	public static final field DEFAULT_MODEL Ljava/lang/String;
+	public static final field DEFAULT_MODEL_ENV Ljava/lang/String;
+	public static final field DEFAULT_MODEL_PROPERTY Ljava/lang/String;
+	public static final field DEFAULT_TIMEOUT_MILLIS J
+	public static final field LOG_LEVEL_ENV Ljava/lang/String;
+	public static final field LOG_LEVEL_PROPERTY Ljava/lang/String;
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;JLnet/bontal/typesafesdk/RetryStrategy;Ljava/util/Map;Lio/ktor/client/engine/HttpClientEngine;Lnet/bontal/typesafesdk/HttpClientConfigurer;Lnet/bontal/typesafesdk/LogLevel;Lnet/bontal/typesafesdk/TypeSafeLogger;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public static final fun builder ()Lnet/bontal/typesafesdk/TypeSafeConfig$Builder;
+	public final fun getApiKey ()Ljava/lang/String;
+	public final fun getBaseUrl ()Ljava/lang/String;
+	public final fun getDefaultModel ()Ljava/lang/String;
+	public final fun getEngine ()Lio/ktor/client/engine/HttpClientEngine;
+	public final fun getHeaders ()Ljava/util/Map;
+	public final fun getHttpClientConfig ()Lnet/bontal/typesafesdk/HttpClientConfigurer;
+	public final fun getLogLevel ()Lnet/bontal/typesafesdk/LogLevel;
+	public final fun getLogger ()Lnet/bontal/typesafesdk/TypeSafeLogger;
+	public final fun getRetry ()Lnet/bontal/typesafesdk/RetryStrategy;
+	public final fun getTimeout-UwyO8pc ()J
+	public final fun getTimeoutMillis ()J
+	public final fun toBuilder ()Lnet/bontal/typesafesdk/TypeSafeConfig$Builder;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class net/bontal/typesafesdk/TypeSafeConfig$Builder {
+	public final fun apiKey (Ljava/lang/String;)Lnet/bontal/typesafesdk/TypeSafeConfig$Builder;
+	public final fun baseUrl (Ljava/lang/String;)Lnet/bontal/typesafesdk/TypeSafeConfig$Builder;
+	public final fun build ()Lnet/bontal/typesafesdk/TypeSafeConfig;
+	public final fun defaultModel (Ljava/lang/String;)Lnet/bontal/typesafesdk/TypeSafeConfig$Builder;
+	public final fun engine (Lio/ktor/client/engine/HttpClientEngine;)Lnet/bontal/typesafesdk/TypeSafeConfig$Builder;
+	public final fun headers (Ljava/util/Map;)Lnet/bontal/typesafesdk/TypeSafeConfig$Builder;
+	public final fun httpClientConfig (Lnet/bontal/typesafesdk/HttpClientConfigurer;)Lnet/bontal/typesafesdk/TypeSafeConfig$Builder;
+	public final fun logLevel (Lnet/bontal/typesafesdk/LogLevel;)Lnet/bontal/typesafesdk/TypeSafeConfig$Builder;
+	public final fun logger (Lnet/bontal/typesafesdk/TypeSafeLogger;)Lnet/bontal/typesafesdk/TypeSafeConfig$Builder;
+	public final fun putHeader (Ljava/lang/String;Ljava/lang/String;)Lnet/bontal/typesafesdk/TypeSafeConfig$Builder;
+	public final fun retry (Lnet/bontal/typesafesdk/RetryStrategy;)Lnet/bontal/typesafesdk/TypeSafeConfig$Builder;
+	public final fun timeout-LRDsOJo (J)Lnet/bontal/typesafesdk/TypeSafeConfig$Builder;
+	public final fun timeoutMillis (J)Lnet/bontal/typesafesdk/TypeSafeConfig$Builder;
+}
+
+public final class net/bontal/typesafesdk/TypeSafeConfig$Companion {
+	public final fun builder ()Lnet/bontal/typesafesdk/TypeSafeConfig$Builder;
+}
+
+public abstract class net/bontal/typesafesdk/TypeSafeException : java/lang/RuntimeException {
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/Throwable;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+}
+
+public final class net/bontal/typesafesdk/TypeSafeFutureClient : java/lang/AutoCloseable {
+	public static final field Companion Lnet/bontal/typesafesdk/TypeSafeFutureClient$Companion;
+	public synthetic fun <init> (Lnet/bontal/typesafesdk/TypeSafeClientAsync;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun close ()V
+	public final fun models ()Ljava/util/concurrent/CompletableFuture;
+	public final fun models (Lnet/bontal/typesafesdk/RequestOptions;)Ljava/util/concurrent/CompletableFuture;
+	public static final fun of (Lnet/bontal/typesafesdk/TypeSafeClient;)Lnet/bontal/typesafesdk/TypeSafeFutureClient;
+	public static final fun of (Lnet/bontal/typesafesdk/TypeSafeClientAsync;)Lnet/bontal/typesafesdk/TypeSafeFutureClient;
+	public final fun systemOne (Lnet/bontal/typesafesdk/SystemOneRequest;)Ljava/util/concurrent/CompletableFuture;
+	public final fun systemOne (Lnet/bontal/typesafesdk/SystemOneRequest;Lnet/bontal/typesafesdk/RequestOptions;)Ljava/util/concurrent/CompletableFuture;
+}
+
+public final class net/bontal/typesafesdk/TypeSafeFutureClient$Companion {
+	public final fun of (Lnet/bontal/typesafesdk/TypeSafeClient;)Lnet/bontal/typesafesdk/TypeSafeFutureClient;
+	public final fun of (Lnet/bontal/typesafesdk/TypeSafeClientAsync;)Lnet/bontal/typesafesdk/TypeSafeFutureClient;
+}
+
+public abstract interface class net/bontal/typesafesdk/TypeSafeLogger {
+	public abstract fun log (Lnet/bontal/typesafesdk/LogLevel;Ljava/lang/String;)V
+}
+
+public final class net/bontal/typesafesdk/UnexpectedStatusCodeException : net/bontal/typesafesdk/ApiException {
+}
+
+public final class net/bontal/typesafesdk/UnprocessableEntityException : net/bontal/typesafesdk/ApiException {
+}
+
