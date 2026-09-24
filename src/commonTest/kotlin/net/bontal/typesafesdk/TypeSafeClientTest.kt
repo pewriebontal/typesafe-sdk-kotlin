@@ -51,7 +51,8 @@ class TypeSafeClientTest {
         )
     }
 
-    private fun MockRequestHandleScope.ok(body: String) = respond(body, HttpStatusCode.OK, headersOf(HttpHeaders.ContentType, "application/json"))
+    private fun MockRequestHandleScope.ok(body: String) =
+        respond(body, HttpStatusCode.OK, headersOf(HttpHeaders.ContentType, "application/json"))
 
     private fun request() = SystemOneRequest {
         state("I was charged twice. Please help.")
@@ -183,8 +184,12 @@ class TypeSafeClientTest {
         assertEquals("https://api.typesafe.ai/v1/models", request.url.toString())
         assertEquals(
             listOf(
-                ModelCard.builder().name("jev-latest").description("General-purpose system one model.").releaseDate("2026-09-15").build(),
-                ModelCard.builder().name("jev-1.13.0").description("Pinned Jev release.").releaseDate("2026-09-15").build(),
+                ModelCard.builder().name(
+                    "jev-latest",
+                ).description("General-purpose system one model.").releaseDate("2026-09-15").build(),
+                ModelCard.builder().name(
+                    "jev-1.13.0",
+                ).description("Pinned Jev release.").releaseDate("2026-09-15").build(),
             ),
             models,
         )
@@ -194,7 +199,13 @@ class TypeSafeClientTest {
     fun unknownAnswerKindsAreSkippedAndLogged() = runTest {
         val logged = mutableListOf<Pair<LogLevel, String>>()
         val engine = MockEngine {
-            ok("""{"model":"m","answers":{"x":{"type":"future","value":1},"y":{"type":"noul","noul":0.5}},"usage":{"input_tokens":1,"output_tokens":1}}""")
+            ok(
+                """
+                {"model":"m",
+                 "answers":{"x":{"type":"future","value":1},"y":{"type":"noul","noul":0.5}},
+                 "usage":{"input_tokens":1,"output_tokens":1}}
+                """.trimIndent(),
+            )
         }
         val raw = client(engine) {
             logLevel(LogLevel.WARN)
@@ -223,11 +234,17 @@ class TypeSafeClientTest {
             respond(
                 """{"detail":"bad key"}""",
                 HttpStatusCode.Unauthorized,
-                headersOf("x-typesafe-request-id" to listOf("req_401"), HttpHeaders.ContentType to listOf("application/json")),
+                headersOf(
+                    "x-typesafe-request-id" to listOf("req_401"),
+                    HttpHeaders.ContentType to listOf("application/json"),
+                ),
             )
         }
         val error = assertFailsWith<AuthenticationException> { client(engine).use { it.models() } }
-        assertEquals("401 Unauthorized from GET https://api.typesafe.ai/v1/models: bad key (request id req_401)", error.message)
+        assertEquals(
+            "401 Unauthorized from GET https://api.typesafe.ai/v1/models: bad key (request id req_401)",
+            error.message,
+        )
         assertEquals(401, error.statusCode)
         assertEquals("""{"detail":"bad key"}""", error.body)
         assertEquals("GET https://api.typesafe.ai/v1/models", error.endpoint)
@@ -240,8 +257,10 @@ class TypeSafeClientTest {
 
     @Test
     fun liveErrorBodyShapeProducesReadableMessage() = runTest {
-        val body = """{"detail":{"error_type":"authentication_error","message":"Cannot authenticate with the server. Please check your API key and try again."}}"""
-        val error = assertFailsWith<AuthenticationException> { client(errorEngine(401, body)).use { it.systemOne(request()) } }
+        val body = """{"detail":{"error_type":"authentication_error","message":"""" +
+            """Cannot authenticate with the server. Please check your API key and try again."}}"""
+        val error =
+            assertFailsWith<AuthenticationException> { client(errorEngine(401, body)).use { it.systemOne(request()) } }
         assertEquals(
             "401 Unauthorized from POST https://api.typesafe.ai/v1/systemone: " +
                 "Cannot authenticate with the server. Please check your API key and try again.",
@@ -252,8 +271,10 @@ class TypeSafeClientTest {
 
     @Test
     fun gatewayValidationIssuesAreFlattened() = runTest {
-        val body = """{"error":{"message":"[{\"code\":\"invalid_union\",\"path\":[\"questions\",\"q\",\"instructions\"],\"message\":\"Invalid input\"}]","code":400}}"""
-        val error = assertFailsWith<BadRequestException> { client(errorEngine(400, body)).use { it.systemOne(request()) } }
+        val body = """{"error":{"message":"[{\"code\":\"invalid_union\",""" +
+            """\"path\":[\"questions\",\"q\",\"instructions\"],\"message\":\"Invalid input\"}]","code":400}}"""
+        val error =
+            assertFailsWith<BadRequestException> { client(errorEngine(400, body)).use { it.systemOne(request()) } }
         assertTrue(error.message!!.endsWith(": questions.q.instructions: Invalid input"), error.message)
     }
 
@@ -262,9 +283,14 @@ class TypeSafeClientTest {
         var attempts = 0
         val engine = MockEngine {
             attempts++
-            respond("<html>moved</html>", HttpStatusCode.MovedPermanently, headersOf(HttpHeaders.Location, "https://elsewhere"))
+            respond(
+                "<html>moved</html>",
+                HttpStatusCode.MovedPermanently,
+                headersOf(HttpHeaders.Location, "https://elsewhere"),
+            )
         }
-        val error = assertFailsWith<UnexpectedStatusCodeException> { retryingClient(engine).use { it.systemOne(request()) } }
+        val error =
+            assertFailsWith<UnexpectedStatusCodeException> { retryingClient(engine).use { it.systemOne(request()) } }
         assertEquals(301, error.statusCode)
         assertEquals(1, attempts)
     }
@@ -285,8 +311,12 @@ class TypeSafeClientTest {
 
     @Test
     fun invalidHeadersAndTimeoutsFailFastWithIllegalArgument() {
-        assertFailsWith<IllegalArgumentException> { TypeSafeConfig.builder().apiKey("k").putHeader("X-Trace", "a\nb").build() }
-        assertFailsWith<IllegalArgumentException> { TypeSafeConfig.builder().apiKey("k").putHeader("Bad Name", "v").build() }
+        assertFailsWith<IllegalArgumentException> {
+            TypeSafeConfig.builder().apiKey("k").putHeader("X-Trace", "a\nb").build()
+        }
+        assertFailsWith<IllegalArgumentException> {
+            TypeSafeConfig.builder().apiKey("k").putHeader("Bad Name", "v").build()
+        }
         assertFailsWith<IllegalArgumentException> { RequestOptions { putHeader("X-Trace", "a\r\nInjected: yes") } }
         assertFailsWith<IllegalArgumentException> { RequestOptions { timeout(500.microseconds) } }
     }
@@ -307,7 +337,10 @@ class TypeSafeClientTest {
             override fun nextBits(bitCount: Int): Int = 0
         }
         val ignoreRetryAfter = RetryStrategy { respectRetryAfter(false) }
-        assertEquals(500L, retryDelayMillis(1, Headers.of(mapOf("retry-after-ms" to listOf("9000"))), ignoreRetryAfter, noJitter))
+        assertEquals(
+            500L,
+            retryDelayMillis(1, Headers.of(mapOf("retry-after-ms" to listOf("9000"))), ignoreRetryAfter, noJitter),
+        )
 
         val unbounded = RetryStrategy { noTotalTimeout() }
         assertNull(unbounded.totalTimeout)
@@ -333,6 +366,56 @@ class TypeSafeClientTest {
     }
 
     @Test
+    fun attemptTimeoutIsCappedToRemainingRetryBudget() = runTest {
+        lateinit var request: HttpRequestData
+        val engine = MockEngine {
+            request = it
+            ok(MODELS_RESPONSE)
+        }
+        client(engine) {
+            timeout(60.seconds)
+            retry(RetryStrategy { totalTimeout(30.seconds) })
+        }.use { it.models() }
+        val requestTimeout = request.getCapabilityOrNull(HttpTimeoutCapability)!!.requestTimeoutMillis!!
+        assertTrue(requestTimeout in 29_000L..30_000L, "request timeout was $requestTimeout")
+
+        client(engine) { timeout(60.seconds) }.use { it.models() }
+        assertEquals(60_000L, request.getCapabilityOrNull(HttpTimeoutCapability)!!.requestTimeoutMillis)
+        assertNull(RetryStrategy.NONE.totalTimeout)
+    }
+
+    @Test
+    fun errorMessagesHandleNullDetailAndNonObjectBodies() = runTest {
+        val nullDetail = assertFailsWith<AuthenticationException> {
+            client(errorEngine(401, """{"detail":null,"message":"Invalid API key"}""")).use { it.models() }
+        }
+        assertTrue(nullDetail.message!!.endsWith(": Invalid API key"), nullDetail.message)
+
+        val jsonString = assertFailsWith<InternalServerException> {
+            client(errorEngine(503, "\"upstream overloaded\"")).use { it.models() }
+        }
+        assertTrue(jsonString.message!!.endsWith(": upstream overloaded"), jsonString.message)
+
+        val jsonArray = assertFailsWith<InternalServerException> {
+            client(errorEngine(503, """[{"message":"bad"}]""")).use { it.models() }
+        }
+        assertTrue(jsonArray.message!!.endsWith(""": [{"message":"bad"}]"""), jsonArray.message)
+    }
+
+    @Test
+    fun wrappedTimeoutsAreStillTimeouts() = runTest {
+        var attempts = 0
+        val engine = MockEngine {
+            attempts++
+            throw IOException("stream failed", HttpRequestTimeoutException("https://api.typesafe.ai/v1/models", 1_000))
+        }
+        assertFailsWith<ApiTimeoutException> {
+            client(engine) { retry(RetryStrategy { retryTimeouts(false) }) }.use { it.models() }
+        }
+        assertEquals(1, attempts)
+    }
+
+    @Test
     fun emptyErrorBodyIsNull() = runTest {
         val error = assertFailsWith<AuthenticationException> { client(errorEngine(401, "")).use { it.models() } }
         assertNull(error.body)
@@ -340,7 +423,8 @@ class TypeSafeClientTest {
 
     @Test
     fun formatsValidationErrorDetail() = runTest {
-        val detail = """{"detail":[{"loc":["body","questions","urgency","score","criteria"],"msg":"Field required","type":"missing"}]}"""
+        val detail = """{"detail":[{"loc":["body","questions","urgency","score","criteria"],""" +
+            """"msg":"Field required","type":"missing"}]}"""
         val error = assertFailsWith<UnprocessableEntityException> {
             client(errorEngine(422, detail)).use { it.systemOne(request()) }
         }
@@ -350,7 +434,9 @@ class TypeSafeClientTest {
     @Test
     fun endpointOmitsCredentialsQueryAndFragment() = runTest {
         val error = assertFailsWith<NotFoundException> {
-            client(errorEngine(404, "")) { baseUrl("https://user:secret@proxy.example.com/typesafe/") }.use { it.models() }
+            client(errorEngine(404, "")) {
+                baseUrl("https://user:secret@proxy.example.com/typesafe/")
+            }.use { it.models() }
         }
         assertEquals("GET https://proxy.example.com/typesafe/v1/models", error.endpoint)
         assertEquals("https://api.example.com/v1/models", sanitizeUrl("https://api.example.com/v1/models?key=1#frag"))
@@ -373,9 +459,14 @@ class TypeSafeClientTest {
 
     @Test
     fun configValidatesBaseUrlAndTimeout() {
-        assertFailsWith<IllegalArgumentException> { TypeSafeConfig.builder().apiKey("k").baseUrl("api.typesafe.ai").build() }
+        assertFailsWith<IllegalArgumentException> {
+            TypeSafeConfig.builder().apiKey("k").baseUrl("api.typesafe.ai").build()
+        }
         assertFailsWith<IllegalArgumentException> { TypeSafeConfig.builder().apiKey("k").timeoutMillis(0).build() }
-        assertEquals("https://api.typesafe.ai", TypeSafeConfig.builder().apiKey("k").baseUrl("https://api.typesafe.ai/").build().baseUrl)
+        assertEquals(
+            "https://api.typesafe.ai",
+            TypeSafeConfig.builder().apiKey("k").baseUrl("https://api.typesafe.ai/").build().baseUrl,
+        )
     }
 
     @Test
@@ -385,7 +476,16 @@ class TypeSafeClientTest {
         assertFailsWith<IllegalArgumentException> { ScoreQuestion {} }
         assertFailsWith<IllegalArgumentException> { ScoreQuestion { criteria((1..11).map { Entry("level-$it") }) } }
         assertFailsWith<IllegalArgumentException> { ChoiceQuestion {} }
-        assertFailsWith<IllegalArgumentException> { ChoiceQuestion { criteria((1..256).associate { "choice-$it" to Entry("val") }) } }
+        assertFailsWith<IllegalArgumentException> {
+            ChoiceQuestion {
+                criteria(
+                    (1..256).associate {
+                        "choice-$it" to
+                            Entry("val")
+                    },
+                )
+            }
+        }
         assertFailsWith<IllegalArgumentException> { RawQuestion(buildJsonObject { put("instructions", "no type") }) }
     }
 
@@ -448,7 +548,10 @@ class TypeSafeClientTest {
             respond(
                 SYSTEM_ONE_RESPONSE,
                 HttpStatusCode.OK,
-                headersOf(HttpHeaders.ContentType to listOf("application/json"), "X-TypeSafe-Request-Id" to listOf("req-xyz-123")),
+                headersOf(
+                    HttpHeaders.ContentType to listOf("application/json"),
+                    "X-TypeSafe-Request-Id" to listOf("req-xyz-123"),
+                ),
             )
         }
         val client = TypeSafeClient.builder().apiKey("test-key").engine(engine).logLevel(LogLevel.OFF).build()
@@ -534,7 +637,12 @@ class TypeSafeClientTest {
             putHeader("X-Session-Token", "tok_abc")
             putHeader("x_api_key", "underscore_secret")
         }.use { it.models() }
-        assertTrue(logged.any { (level, message) -> level == LogLevel.INFO && message.startsWith("GET https://api.typesafe.ai/v1/models -> 200") })
+        assertTrue(
+            logged.any { (level, message) ->
+                level == LogLevel.INFO &&
+                    message.startsWith("GET https://api.typesafe.ai/v1/models -> 200")
+            },
+        )
         val all = logged.joinToString("\n") { it.second }
         assertTrue(!all.contains("test-key"))
         assertTrue(!all.contains("tok_abc"))
@@ -641,7 +749,9 @@ class TypeSafeClientTest {
 
     @Test
     fun responseValidationExceptionReportsFieldPath() = runTest {
-        val body = """{"model":"jev-1.13.0","answers":{"tone":{"type":"choice","choice":"calm","probabilities":{"calm":1.0}}},"usage":{"input_tokens":1,"output_tokens":1}}"""
+        val body = """{"model":"jev-1.13.0",""" +
+            """"answers":{"tone":{"type":"choice","choice":"calm","probabilities":{"calm":1.0}}},""" +
+            """"usage":{"input_tokens":1,"output_tokens":1}}"""
         val engine = MockEngine { respond(body, HttpStatusCode.OK, headersOf("x-typesafe-request-id", "req_9")) }
         val error = assertFailsWith<ApiResponseValidationException> { client(engine).use { it.systemOne(request()) } }
         assertEquals("answers.tone.confidence", error.fieldPath)
@@ -652,7 +762,9 @@ class TypeSafeClientTest {
 
     @Test
     fun malformedSuccessBodyIsResponseValidationException() = runTest {
-        assertFailsWith<ApiResponseValidationException> { client(MockEngine { ok("""{"model":"jev-1.13.0"}""") }).use { it.systemOne(request()) } }
+        assertFailsWith<ApiResponseValidationException> {
+            client(MockEngine { ok("""{"model":"jev-1.13.0"}""") }).use { it.systemOne(request()) }
+        }
         assertFailsWith<ApiResponseValidationException> {
             client(MockEngine { respond("<html>gateway</html>", HttpStatusCode.OK) }).use { it.models() }
         }
@@ -711,7 +823,14 @@ class TypeSafeClientTest {
         var attempts = 0
         val engine = MockEngine {
             attempts++
-            respond("slow down", HttpStatusCode.TooManyRequests, headersOf("retry-after-ms" to listOf("1"), "x-typesafe-request-id" to listOf("req_123")))
+            respond(
+                "slow down",
+                HttpStatusCode.TooManyRequests,
+                headersOf(
+                    "retry-after-ms" to listOf("1"),
+                    "x-typesafe-request-id" to listOf("req_123"),
+                ),
+            )
         }
         val error = assertFailsWith<RateLimitException> { retryingClient(engine).use { it.models() } }
         assertEquals(3, attempts)
@@ -744,7 +863,17 @@ class TypeSafeClientTest {
         assertEquals(250L, retryDelayMillis(1, headers("retry-after-ms", "250"), policy, noJitter))
         assertEquals(20_000L, retryDelayMillis(1, headers("Retry-After", "20"), policy, noJitter))
         assertEquals(500L, retryDelayMillis(1, headers("Retry-After", "120"), policy, noJitter))
-        assertEquals(120_000L, retryDelayMillis(1, headers("Retry-After", "120"), RetryStrategy { maxRetryAfter(180.seconds) }, noJitter))
+        assertEquals(
+            120_000L,
+            retryDelayMillis(
+                1,
+                headers("Retry-After", "120"),
+                RetryStrategy {
+                    maxRetryAfter(180.seconds)
+                },
+                noJitter,
+            ),
+        )
         assertEquals(500L, retryDelayMillis(1, headers("Retry-After", "garbage"), policy, noJitter))
         assertEquals(0L, parseRetryAfterMillis(headers("Retry-After", "Wed, 21 Oct 2015 07:28:00 GMT")))
         assertTrue(529 in policy.retryableStatuses)
@@ -757,8 +886,11 @@ class TypeSafeClientTest {
             {
               "model": "jev-1.13.0",
               "answers": {
-                "department": {"type":"choice","choice":"technical","confidence":0.78,"probabilities":{"technical":0.85,"sales":0.0,"billing":0.15}},
-                "frustration": {"type":"score","score":1.0,"confidence":1.0,"legend":{"0":"Calm","1":"Frustrated","2":"Angry"},"probabilities":{"0":0.0,"1":1.0,"2":0.0}},
+                "department": {"type":"choice","choice":"technical","confidence":0.78,
+                               "probabilities":{"technical":0.85,"sales":0.0,"billing":0.15}},
+                "frustration": {"type":"score","score":1.0,"confidence":1.0,
+                                "legend":{"0":"Calm","1":"Frustrated","2":"Angry"},
+                                "probabilities":{"0":0.0,"1":1.0,"2":0.0}},
                 "is_urgent": {"type":"noul","noul":1.0}
               },
               "usage": {"input_tokens":392,"output_tokens":65}

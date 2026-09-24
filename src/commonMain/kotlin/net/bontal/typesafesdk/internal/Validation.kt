@@ -9,6 +9,10 @@ internal fun requireValidTimeout(timeout: Duration) {
 internal fun requireValidHeaders(headers: Map<String, String>) {
     for ((name, value) in headers) {
         require(name.isNotEmpty() && name.all { it in '!'..'~' && it != ':' }) { "Invalid header name `$name`" }
-        require(value.none { it == '\r' || it == '\n' || it == '\u0000' }) { "Header `$name` contains a line break or NUL character" }
+        require(
+            value.none {
+                it == '\r' || it == '\n' || it == '\u0000'
+            },
+        ) { "Header `$name` contains a line break or NUL character" }
     }
 }

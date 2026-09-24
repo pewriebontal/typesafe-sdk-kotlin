@@ -4,9 +4,7 @@ import kotlin.jvm.JvmStatic
 
 public sealed interface Answer
 
-public class NoulAnswer private constructor(
-    public val noul: Double,
-) : Answer {
+public class NoulAnswer private constructor(public val noul: Double) : Answer {
     override fun equals(other: Any?): Boolean = this === other || (other is NoulAnswer && noul == other.noul)
 
     override fun hashCode(): Int = noul.hashCode()
@@ -51,7 +49,8 @@ public class ChoiceAnswer private constructor(
         return result
     }
 
-    override fun toString(): String = "ChoiceAnswer(choice=$choice, confidence=$confidence, probabilities=$probabilities)"
+    override fun toString(): String =
+        "ChoiceAnswer(choice=$choice, confidence=$confidence, probabilities=$probabilities)"
 
     public fun toBuilder(): Builder = Builder()
         .choice(choice)
@@ -67,7 +66,8 @@ public class ChoiceAnswer private constructor(
 
         public fun confidence(confidence: Double): Builder = apply { this.confidence = confidence }
 
-        public fun probabilities(probabilities: Map<String, Double>): Builder = apply { this.probabilities = probabilities.toMap() }
+        public fun probabilities(probabilities: Map<String, Double>): Builder =
+            apply { this.probabilities = probabilities.toMap() }
 
         public fun build(): ChoiceAnswer = ChoiceAnswer(
             choice = checkNotNull(choice) { "choice is required" },
@@ -109,7 +109,8 @@ public class ScoreAnswer private constructor(
         return result
     }
 
-    override fun toString(): String = "ScoreAnswer(score=$score, confidence=$confidence, legend=$legend, probabilities=$probabilities)"
+    override fun toString(): String =
+        "ScoreAnswer(score=$score, confidence=$confidence, legend=$legend, probabilities=$probabilities)"
 
     public fun toBuilder(): Builder = Builder()
         .score(score)
@@ -129,7 +130,8 @@ public class ScoreAnswer private constructor(
 
         public fun legend(legend: Map<String, Entry>): Builder = apply { this.legend = legend.toMap() }
 
-        public fun probabilities(probabilities: Map<String, Double>): Builder = apply { this.probabilities = probabilities.toMap() }
+        public fun probabilities(probabilities: Map<String, Double>): Builder =
+            apply { this.probabilities = probabilities.toMap() }
 
         public fun build(): ScoreAnswer = ScoreAnswer(
             score = checkNotNull(score) { "score is required" },

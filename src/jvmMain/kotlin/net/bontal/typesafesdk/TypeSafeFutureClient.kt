@@ -12,9 +12,14 @@ public class TypeSafeFutureClient private constructor(private val client: TypeSa
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
-    public fun systemOne(request: SystemOneRequest): CompletableFuture<SystemOneResult> = submit { client.systemOne(request) }
+    public fun systemOne(request: SystemOneRequest): CompletableFuture<SystemOneResult> = submit {
+        client.systemOne(request)
+    }
 
-    public fun systemOne(request: SystemOneRequest, options: RequestOptions): CompletableFuture<SystemOneResult> = submit { client.systemOne(request, options) }
+    public fun systemOne(request: SystemOneRequest, options: RequestOptions): CompletableFuture<SystemOneResult> =
+        submit {
+            client.systemOne(request, options)
+        }
 
     public fun models(): CompletableFuture<List<ModelCard>> = submit { client.models() }
 

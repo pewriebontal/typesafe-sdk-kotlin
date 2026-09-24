@@ -36,7 +36,8 @@ public class SystemOneRequest private constructor(
         return result
     }
 
-    override fun toString(): String = "SystemOneRequest(state=$state, questions=$questions, model=$model, additionalBodyProperties=$additionalBodyProperties)"
+    override fun toString(): String = "SystemOneRequest(state=$state, questions=$questions, model=$model, " +
+        "additionalBodyProperties=$additionalBodyProperties)"
 
     public fun toBuilder(): Builder = Builder()
         .state(state)
@@ -94,11 +95,11 @@ public class SystemOneResult private constructor(
 ) {
     public val answers: Map<String, Answer> = answers.toMap()
 
-    public val choices: Map<String, ChoiceAnswer> = answersOf()
+    public val choices: Map<String, ChoiceAnswer> by lazy { answersOf() }
 
-    public val scores: Map<String, ScoreAnswer> = answersOf()
+    public val scores: Map<String, ScoreAnswer> by lazy { answersOf() }
 
-    public val nouls: Map<String, NoulAnswer> = answersOf()
+    public val nouls: Map<String, NoulAnswer> by lazy { answersOf() }
 
     private inline fun <reified T : Answer> answersOf(): Map<String, T> = buildMap {
         for ((name, answer) in answers) {
@@ -120,7 +121,8 @@ public class SystemOneResult private constructor(
         return result
     }
 
-    override fun toString(): String = "SystemOneResult(model=$model, answers=$answers, usage=$usage, requestId=$requestId)"
+    override fun toString(): String =
+        "SystemOneResult(model=$model, answers=$answers, usage=$usage, requestId=$requestId)"
 
     public fun toBuilder(): Builder = Builder()
         .model(model)
@@ -161,10 +163,7 @@ public class SystemOneResult private constructor(
     }
 }
 
-public class TokenUsage private constructor(
-    public val inputTokens: Long,
-    public val outputTokens: Long,
-) {
+public class TokenUsage private constructor(public val inputTokens: Long, public val outputTokens: Long) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is TokenUsage) return false
@@ -200,4 +199,5 @@ public class TokenUsage private constructor(
 }
 
 @JvmSynthetic
-public fun SystemOneRequest(configure: SystemOneRequest.Builder.() -> Unit): SystemOneRequest = SystemOneRequest.builder().apply(configure).build()
+public fun SystemOneRequest(configure: SystemOneRequest.Builder.() -> Unit): SystemOneRequest =
+    SystemOneRequest.builder().apply(configure).build()

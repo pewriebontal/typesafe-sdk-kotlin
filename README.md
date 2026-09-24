@@ -153,6 +153,9 @@ val pinned = client.withOptions { it.defaultModel("jev-1.13.0") }
 A client returned by `withOptions` shares the parent's connection pool. Closing the parent closes
 the pool. Closing the copy has no effect unless the copy changed `engine` or `httpClientConfig`.
 
+An engine passed to `engine(...)` belongs to the caller. Closing the client does not close it, so
+close the engine yourself when it is no longer needed.
+
 ### Raw responses
 
 ```kotlin
@@ -216,9 +219,11 @@ By default the client follows the retry policy in the TypeSafe documentation:
 - Exponential backoff starting at 500 ms, capped at 5 seconds, with up to 25% jitter.
 - `retry-after-ms` and `Retry-After` response headers are honored when they request 60 seconds
   or less.
-- No retry is attempted if its delay would exceed a total budget of 30 seconds for the call.
+- The whole call, including retries, has a budget of 30 seconds. Each attempt's timeout is
+  shortened to fit the remaining budget, and no retry starts if its delay would exceed it.
 
-Each setting can be changed with `RetryStrategy.builder()`. `RetryStrategy.NONE` disables retries.
+Each setting can be changed with `RetryStrategy.builder()`. `RetryStrategy.NONE` disables retries
+and the budget, so only the per-attempt `timeout` applies.
 Retried requests carry an `X-TypeSafe-Retry-Count` header.
 
 ### Logging
@@ -229,6 +234,11 @@ are redacted. Request and response bodies are not redacted.
 
 Logs go to `System.Logger` (name `net.bontal.typesafesdk`) on the JVM and to `android.util.Log`
 (tag `TypeSafe`) on Android. Use `logger { level, message -> ... }` to send them elsewhere.
+
+On the JVM, `DEBUG` messages are logged at `System.Logger.Level.DEBUG`. With the default
+`java.util.logging` configuration, which prints `INFO` and above, they are not shown until the
+`net.bontal.typesafesdk` logger and its handler are set to `FINE`, or until a logging bridge such
+as SLF4J routes them.
 
 ## Error handling
 

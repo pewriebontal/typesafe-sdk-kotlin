@@ -14,6 +14,7 @@ import net.bontal.typesafesdk.RetryStrategy
 import net.bontal.typesafesdk.SystemOneRequest
 import net.bontal.typesafesdk.TypeSafeClient
 import net.bontal.typesafesdk.TypeSafeException
+import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
 object ErrorHandling {
@@ -45,7 +46,8 @@ object ErrorHandling {
 
         attempt("raw response") {
             val raw = client.withRawResponse().systemOne(request)
-            println("  status ${raw.statusCode}, request ${raw.requestId ?: "n/a"}, noul ${raw.value.nouls.getValue("cancel").noul}")
+            val noul = raw.value.nouls.getValue("cancel").noul
+            println("  status ${raw.statusCode}, request ${raw.requestId ?: "n/a"}, noul $noul")
         }
 
         attempt("per-call timeout, no retries") {
@@ -59,7 +61,14 @@ object ErrorHandling {
         }
 
         attempt("patient copy") {
-            val patient = client.withOptions { it.timeout(60.seconds).retry(RetryStrategy { maxRetries(5) }) }
+            val patient = client.withOptions {
+                it.timeout(60.seconds).retry(
+                    RetryStrategy {
+                        maxRetries(5)
+                        totalTimeout(5.minutes)
+                    },
+                )
+            }
             patient.systemOne(request)
         }
 

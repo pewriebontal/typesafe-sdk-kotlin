@@ -73,4 +73,5 @@ public class RequestOptions private constructor(
 }
 
 @JvmSynthetic
-public fun RequestOptions(configure: RequestOptions.Builder.() -> Unit): RequestOptions = RequestOptions.builder().apply(configure).build()
+public fun RequestOptions(configure: RequestOptions.Builder.() -> Unit): RequestOptions =
+    RequestOptions.builder().apply(configure).build()

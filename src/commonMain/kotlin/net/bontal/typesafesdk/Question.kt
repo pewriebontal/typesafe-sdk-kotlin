@@ -10,10 +10,8 @@ public sealed interface Question {
     public val instructions: Entry?
 }
 
-public class NoulQuestion private constructor(
-    override val instructions: Entry?,
-    public val criteria: NoulCriteria?,
-) : Question {
+public class NoulQuestion private constructor(override val instructions: Entry?, public val criteria: NoulCriteria?) :
+    Question {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is NoulQuestion) return false
@@ -51,10 +49,7 @@ public class NoulQuestion private constructor(
     }
 }
 
-public class NoulCriteria private constructor(
-    public val yes: Entry?,
-    public val no: Entry?,
-) {
+public class NoulCriteria private constructor(public val yes: Entry?, public val no: Entry?) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is NoulCriteria) return false
@@ -94,10 +89,8 @@ public class NoulCriteria private constructor(
     }
 }
 
-public class ChoiceQuestion private constructor(
-    override val instructions: Entry?,
-    criteria: Map<String, Entry?>,
-) : Question {
+public class ChoiceQuestion private constructor(override val instructions: Entry?, criteria: Map<String, Entry?>) :
+    Question {
     init {
         require(criteria.isNotEmpty()) { "criteria must not be empty" }
         require(criteria.size <= MAX_CHOICES) { "criteria must not exceed $MAX_CHOICES choices, was ${criteria.size}" }
@@ -138,7 +131,8 @@ public class ChoiceQuestion private constructor(
 
         public fun putCriterion(name: String, description: Entry?): Builder = apply { criteria[name] = description }
 
-        public fun putCriterion(name: String, description: String): Builder = putCriterion(name, Entry.Text(description))
+        public fun putCriterion(name: String, description: String): Builder =
+            putCriterion(name, Entry.Text(description))
 
         public fun build(): ChoiceQuestion = ChoiceQuestion(instructions, criteria)
     }
@@ -151,12 +145,11 @@ public class ChoiceQuestion private constructor(
     }
 }
 
-public class ScoreQuestion private constructor(
-    override val instructions: Entry?,
-    criteria: List<Entry>,
-) : Question {
+public class ScoreQuestion private constructor(override val instructions: Entry?, criteria: List<Entry>) : Question {
     init {
-        require(criteria.size in 1..MAX_LEVELS) { "criteria must contain between 1 and $MAX_LEVELS score levels, was ${criteria.size}" }
+        require(criteria.size in 1..MAX_LEVELS) {
+            "criteria must contain between 1 and $MAX_LEVELS score levels, was ${criteria.size}"
+        }
     }
 
     public val criteria: List<Entry> = criteria.toList()
@@ -224,13 +217,17 @@ public class RawQuestion(public val json: JsonObject) : Question {
 }
 
 @JvmSynthetic
-public fun NoulQuestion(configure: NoulQuestion.Builder.() -> Unit): NoulQuestion = NoulQuestion.builder().apply(configure).build()
+public fun NoulQuestion(configure: NoulQuestion.Builder.() -> Unit): NoulQuestion =
+    NoulQuestion.builder().apply(configure).build()
 
 @JvmSynthetic
-public fun NoulCriteria(configure: NoulCriteria.Builder.() -> Unit): NoulCriteria = NoulCriteria.builder().apply(configure).build()
+public fun NoulCriteria(configure: NoulCriteria.Builder.() -> Unit): NoulCriteria =
+    NoulCriteria.builder().apply(configure).build()
 
 @JvmSynthetic
-public fun ChoiceQuestion(configure: ChoiceQuestion.Builder.() -> Unit): ChoiceQuestion = ChoiceQuestion.builder().apply(configure).build()
+public fun ChoiceQuestion(configure: ChoiceQuestion.Builder.() -> Unit): ChoiceQuestion =
+    ChoiceQuestion.builder().apply(configure).build()
 
 @JvmSynthetic
-public fun ScoreQuestion(configure: ScoreQuestion.Builder.() -> Unit): ScoreQuestion = ScoreQuestion.builder().apply(configure).build()
+public fun ScoreQuestion(configure: ScoreQuestion.Builder.() -> Unit): ScoreQuestion =
+    ScoreQuestion.builder().apply(configure).build()

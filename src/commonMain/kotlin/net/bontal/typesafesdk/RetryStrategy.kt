@@ -24,9 +24,13 @@ public class RetryStrategy private constructor(
         require(!baseDelay.isNegative()) { "baseDelay must not be negative, was $baseDelay" }
         require(!maxDelay.isNegative()) { "maxDelay must not be negative, was $maxDelay" }
         require(jitter in 0.0..1.0) { "jitter must be between 0 and 1, was $jitter" }
-        require(retryableStatuses.all { it in 100..599 }) { "retryableStatuses must be HTTP status codes, was $retryableStatuses" }
+        require(retryableStatuses.all { it in 100..599 }) {
+            "retryableStatuses must be HTTP status codes, was $retryableStatuses"
+        }
         require(!maxRetryAfter.isNegative()) { "maxRetryAfter must not be negative, was $maxRetryAfter" }
-        require(totalTimeout == null || totalTimeout.isPositive()) { "totalTimeout must be positive, was $totalTimeout" }
+        require(totalTimeout == null || totalTimeout.isPositive()) {
+            "totalTimeout must be positive, was $totalTimeout"
+        }
     }
 
     public val retryableStatuses: Set<Int> = retryableStatuses.toSet()
@@ -68,9 +72,11 @@ public class RetryStrategy private constructor(
         return result
     }
 
-    override fun toString(): String = "RetryStrategy(maxRetries=$maxRetries, baseDelay=$baseDelay, maxDelay=$maxDelay, jitter=$jitter, " +
-        "retryableStatuses=$retryableStatuses, respectRetryAfter=$respectRetryAfter, maxRetryAfter=$maxRetryAfter, " +
-        "retryConnectionErrors=$retryConnectionErrors, retryTimeouts=$retryTimeouts, totalTimeout=$totalTimeout)"
+    override fun toString(): String =
+        "RetryStrategy(maxRetries=$maxRetries, baseDelay=$baseDelay, maxDelay=$maxDelay, jitter=$jitter, " +
+            "retryableStatuses=$retryableStatuses, respectRetryAfter=$respectRetryAfter, " +
+            "maxRetryAfter=$maxRetryAfter, retryConnectionErrors=$retryConnectionErrors, " +
+            "retryTimeouts=$retryTimeouts, totalTimeout=$totalTimeout)"
 
     public fun toBuilder(): Builder = Builder()
         .maxRetries(maxRetries)
@@ -108,15 +114,19 @@ public class RetryStrategy private constructor(
 
         public fun jitter(jitter: Double): Builder = apply { this.jitter = jitter }
 
-        public fun retryableStatuses(retryableStatuses: Set<Int>): Builder = apply { this.retryableStatuses = retryableStatuses.toSet() }
+        public fun retryableStatuses(retryableStatuses: Set<Int>): Builder =
+            apply { this.retryableStatuses = retryableStatuses.toSet() }
 
-        public fun respectRetryAfter(respectRetryAfter: Boolean): Builder = apply { this.respectRetryAfter = respectRetryAfter }
+        public fun respectRetryAfter(respectRetryAfter: Boolean): Builder =
+            apply { this.respectRetryAfter = respectRetryAfter }
 
         public fun maxRetryAfter(maxRetryAfter: Duration): Builder = apply { this.maxRetryAfter = maxRetryAfter }
 
-        public fun maxRetryAfterMillis(maxRetryAfterMillis: Long): Builder = maxRetryAfter(maxRetryAfterMillis.milliseconds)
+        public fun maxRetryAfterMillis(maxRetryAfterMillis: Long): Builder =
+            maxRetryAfter(maxRetryAfterMillis.milliseconds)
 
-        public fun retryConnectionErrors(retryConnectionErrors: Boolean): Builder = apply { this.retryConnectionErrors = retryConnectionErrors }
+        public fun retryConnectionErrors(retryConnectionErrors: Boolean): Builder =
+            apply { this.retryConnectionErrors = retryConnectionErrors }
 
         public fun retryTimeouts(retryTimeouts: Boolean): Builder = apply { this.retryTimeouts = retryTimeouts }
 
@@ -148,7 +158,7 @@ public class RetryStrategy private constructor(
         public val DEFAULT: RetryStrategy = Builder().build()
 
         @JvmField
-        public val NONE: RetryStrategy = Builder().maxRetries(0).build()
+        public val NONE: RetryStrategy = Builder().maxRetries(0).noTotalTimeout().build()
 
         @JvmStatic
         public fun builder(): Builder = Builder()
@@ -156,4 +166,5 @@ public class RetryStrategy private constructor(
 }
 
 @JvmSynthetic
-public fun RetryStrategy(configure: RetryStrategy.Builder.() -> Unit): RetryStrategy = RetryStrategy.builder().apply(configure).build()
+public fun RetryStrategy(configure: RetryStrategy.Builder.() -> Unit): RetryStrategy =
+    RetryStrategy.builder().apply(configure).build()

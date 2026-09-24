@@ -11,9 +11,11 @@ import net.bontal.typesafesdk.TypeSafeClientAsync
 object CompositeScoring {
 
     private val candidates = mapOf(
-        "Priya" to "8 years backend engineering; led the migration of a payments monolith to services; mentors 3 engineers.",
+        "Priya" to
+            "8 years backend engineering; led the migration of a payments monolith to services; mentors 3 engineers.",
         "Marco" to "2 years as a frontend developer building React dashboards; hackathon winner.",
-        "Lena" to "12 years across infrastructure and SRE; managed a team of 9; designed a multi-region failover system.",
+        "Lena" to
+            "12 years across infrastructure and SRE; managed a team of 9; designed a multi-region failover system.",
     )
 
     private val dimensions = mapOf(
@@ -42,17 +44,28 @@ object CompositeScoring {
                 }
             },
         )
-        return dimensions.mapValues { (dimension, levels) -> result.scores.getValue(dimension).score / (levels.size - 1) }
+        return dimensions.mapValues { (dimension, levels) ->
+            result.scores.getValue(dimension).score / (levels.size - 1)
+        }
     }
 
     suspend fun run(client: TypeSafeClientAsync) = coroutineScope {
-        val scores = candidates.map { (name, resume) -> async { name to scoreCandidate(client, resume) } }.awaitAll().toMap()
+        val scores = candidates.map { (name, resume) ->
+            async { name to scoreCandidate(client, resume) }
+        }.awaitAll().toMap()
         for ((role, weights) in weightsByRole) {
             println(role)
-            scores.mapValues { (_, normalized) -> weights.entries.sumOf { (dimension, weight) -> weight * normalized.getValue(dimension) } }
+            scores.mapValues { (_, normalized) ->
+                weights.entries.sumOf { (dimension, weight) ->
+                    weight *
+                        normalized.getValue(dimension)
+                }
+            }
                 .entries
                 .sortedByDescending { it.value }
-                .forEachIndexed { rank, (name, composite) -> println("  ${rank + 1}. $name ${"%.2f".format(composite)}") }
+                .forEachIndexed { rank, (name, composite) ->
+                    println("  ${rank + 1}. $name ${"%.2f".format(composite)}")
+                }
         }
     }
 }

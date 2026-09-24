@@ -62,7 +62,8 @@ object SupportTriage {
             val priority = if (frustration >= 1.5) "high" else "normal"
 
             println("\"${ticket.take(60)}...\"")
-            println("  category=${category.choice} (${percent(category.confidence)} confident) -> $queue, priority $priority")
+            val confidence = percent(category.confidence)
+            println("  category=${category.choice} ($confidence confident) -> $queue, priority $priority")
         }
     }
 }

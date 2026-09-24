@@ -63,7 +63,8 @@ internal class TypeSafeApi private constructor(
 
     private val log = Log(config)
 
-    override suspend fun systemOne(request: SystemOneRequest, options: RequestOptions): SystemOneResult = rawSystemOne(request, options).value
+    override suspend fun systemOne(request: SystemOneRequest, options: RequestOptions): SystemOneResult =
+        rawSystemOne(request, options).value
 
     override suspend fun models(options: RequestOptions): List<ModelCard> = rawModels(options).value
 
@@ -83,13 +84,23 @@ internal class TypeSafeApi private constructor(
         if (ownsClient) client.close()
     }
 
-    internal suspend fun rawSystemOne(request: SystemOneRequest, options: RequestOptions): HttpResponseFor<SystemOneResult> = send(HttpMethod.Post, "/v1/systemone", request.toJson(config.defaultModel).toString(), options) { json, headers ->
-        json.toSystemOneResult(headers[REQUEST_ID_HEADER]) { name, type ->
-            log.warn { "Skipped answer `$name` with unknown type `$type`; upgrade typesafe-sdk-kotlin or read the raw response body" }
+    internal suspend fun rawSystemOne(
+        request: SystemOneRequest,
+        options: RequestOptions,
+    ): HttpResponseFor<SystemOneResult> {
+        val payload = request.toJson(config.defaultModel).toString()
+        return send(HttpMethod.Post, "/v1/systemone", payload, options) { json, headers ->
+            json.toSystemOneResult(headers[REQUEST_ID_HEADER]) { name, type ->
+                log.warn {
+                    "Skipped answer `$name` with unknown type `$type`; " +
+                        "upgrade typesafe-sdk-kotlin or read the raw response body"
+                }
+            }
         }
     }
 
-    internal suspend fun rawModels(options: RequestOptions): HttpResponseFor<List<ModelCard>> = send(HttpMethod.Get, "/v1/models", null, options) { json, _ -> json.toModelCards() }
+    internal suspend fun rawModels(options: RequestOptions): HttpResponseFor<List<ModelCard>> =
+        send(HttpMethod.Get, "/v1/models", null, options) { json, _ -> json.toModelCards() }
 
     private suspend fun <T> send(
         method: HttpMethod,
@@ -99,11 +110,21 @@ internal class TypeSafeApi private constructor(
         parse: (JsonElement, Headers) -> T,
     ): HttpResponseFor<T> {
         check(client.isActive) { CLOSED_MESSAGE }
-        val call = Call(method, config.baseUrl + path, payload, options, options.retry ?: config.retry, options.timeout ?: config.timeout)
+        val call = Call(
+            method,
+            config.baseUrl + path,
+            payload,
+            options,
+            options.retry ?: config.retry,
+            options.timeout ?: config.timeout,
+        )
         val started = TimeSource.Monotonic.markNow()
         var retryCount = 0
         while (true) {
-            val failure = when (val outcome = attempt(call, retryCount, parse)) {
+            val remaining = call.retry.totalTimeout?.minus(started.elapsedNow())
+            val attemptTimeout =
+                remaining?.let { minOf(call.timeout, it.coerceAtLeast(1.milliseconds)) } ?: call.timeout
+            val failure = when (val outcome = attempt(call, attemptTimeout, retryCount, parse)) {
                 is Outcome.Success -> return outcome.response
                 is Outcome.Failure -> outcome
             }
@@ -113,20 +134,28 @@ internal class TypeSafeApi private constructor(
             val budget = retry.totalTimeout
             if (budget != null && started.elapsedNow() + delayMillis.milliseconds >= budget) throw failure.exception
             retryCount++
-            log.info { "Retrying ${call.endpoint} in $delayMillis ms (retry $retryCount of ${retry.maxRetries}): ${failure.exception.message}" }
+            log.info {
+                "Retrying ${call.endpoint} in $delayMillis ms (retry $retryCount of ${retry.maxRetries}): " +
+                    failure.exception.message
+            }
             delay(delayMillis)
         }
     }
 
-    private suspend fun <T> attempt(call: Call, retryCount: Int, parse: (JsonElement, Headers) -> T): Outcome<T> {
+    private suspend fun <T> attempt(
+        call: Call,
+        timeout: Duration,
+        retryCount: Int,
+        parse: (JsonElement, Headers) -> T,
+    ): Outcome<T> {
         val started = TimeSource.Monotonic.markNow()
         val (status, responseHeaders, body) = try {
             val response = client.request(call.url) {
                 method = call.method
                 timeout {
-                    requestTimeoutMillis = call.timeout.inWholeMilliseconds
-                    connectTimeoutMillis = call.timeout.inWholeMilliseconds
-                    socketTimeoutMillis = call.timeout.inWholeMilliseconds
+                    requestTimeoutMillis = timeout.inWholeMilliseconds
+                    connectTimeoutMillis = timeout.inWholeMilliseconds
+                    socketTimeoutMillis = timeout.inWholeMilliseconds
                 }
                 applyHeaders(call.options, retryCount)
                 if (call.payload != null) {
@@ -134,8 +163,8 @@ internal class TypeSafeApi private constructor(
                     setBody(call.payload)
                 }
                 log.debug {
-                    "Request ${call.endpoint} headers=${redactHeaders(headers.entries().flatMap { (n, v) -> v.map { n to it } })} " +
-                        "body=${call.payload.orEmpty()}"
+                    val requestHeaders = redactHeaders(headers.entries())
+                    "Request ${call.endpoint} headers=$requestHeaders body=${call.payload.orEmpty()}"
                 }
             }
             Triple(response.status.value, Headers.of(response.headers.toMap()), response.bodyAsText())
@@ -144,27 +173,59 @@ internal class TypeSafeApi private constructor(
         } catch (e: Exception) {
             if (!client.isActive) throw IllegalStateException(CLOSED_MESSAGE, e)
             val timedOut = e.isTimeout()
-            val failure = if (timedOut) ApiTimeoutException(call.timeout, e) else ApiConnectionException("Connection error: ${e.message}", e)
-            log.info { "${call.endpoint} failed after ${started.elapsedNow().inWholeMilliseconds} ms: ${failure.message}" }
-            return Outcome.Failure(failure, if (timedOut) call.retry.retryTimeouts else call.retry.retryConnectionErrors, null)
+            val failure = if (timedOut) {
+                ApiTimeoutException(timeout, e)
+            } else {
+                ApiConnectionException("Connection error: ${e.message}", e)
+            }
+            log.info {
+                "${call.endpoint} failed after ${started.elapsedNow().inWholeMilliseconds} ms: ${failure.message}"
+            }
+            return Outcome.Failure(
+                failure,
+                if (timedOut) call.retry.retryTimeouts else call.retry.retryConnectionErrors,
+                null,
+            )
         }
         log.info {
             "${call.endpoint} -> $status in ${started.elapsedNow().inWholeMilliseconds} ms" +
                 (responseHeaders[REQUEST_ID_HEADER]?.let { " (request id $it)" } ?: "")
         }
-        log.debug { "Response ${call.endpoint} headers=${redactHeaders(responseHeaders.toMap().flatMap { (n, v) -> v.map { n to it } })} body=$body" }
+        log.debug {
+            "Response ${call.endpoint} headers=${redactHeaders(responseHeaders.toMap().entries)} body=$body"
+        }
         if (status in 200..299) {
-            return Outcome.Success(HttpResponseFor(parseBody(body, status, responseHeaders, call.endpoint, parse), status, responseHeaders, body))
+            return Outcome.Success(
+                HttpResponseFor(
+                    parseBody(body, status, responseHeaders, call.endpoint, parse),
+                    status,
+                    responseHeaders,
+                    body,
+                ),
+            )
         }
         val failure = apiException(status, body.ifEmpty { null }, responseHeaders, call.endpoint)
         return Outcome.Failure(failure, status in call.retry.retryableStatuses, responseHeaders)
     }
 
-    private fun <T> parseBody(body: String, status: Int, headers: Headers, endpoint: String, parse: (JsonElement, Headers) -> T): T {
+    private fun <T> parseBody(
+        body: String,
+        status: Int,
+        headers: Headers,
+        endpoint: String,
+        parse: (JsonElement, Headers) -> T,
+    ): T {
         val json = try {
             DefaultJson.parseToJsonElement(body)
         } catch (e: SerializationException) {
-            throw ApiResponseValidationException(status, "Response body is not valid JSON", null, body, headers, endpoint)
+            throw ApiResponseValidationException(
+                status,
+                "Response body is not valid JSON",
+                null,
+                body,
+                headers,
+                endpoint,
+            )
         }
         return try {
             parse(json, headers)
@@ -208,7 +269,8 @@ internal class TypeSafeApi private constructor(
     private sealed interface Outcome<out T> {
         class Success<T>(val response: HttpResponseFor<T>) : Outcome<T>
 
-        class Failure(val exception: TypeSafeException, val retryable: Boolean, val headers: Headers?) : Outcome<Nothing>
+        class Failure(val exception: TypeSafeException, val retryable: Boolean, val headers: Headers?) :
+            Outcome<Nothing>
     }
 
     private companion object {
@@ -218,7 +280,9 @@ internal class TypeSafeApi private constructor(
 
 internal class TypeSafeSyncApi(private val asyncClient: TypeSafeApi) : TypeSafeClient {
 
-    override fun systemOne(request: SystemOneRequest, options: RequestOptions): SystemOneResult = blocking { asyncClient.systemOne(request, options) }
+    override fun systemOne(request: SystemOneRequest, options: RequestOptions): SystemOneResult = blocking {
+        asyncClient.systemOne(request, options)
+    }
 
     override fun models(options: RequestOptions): List<ModelCard> = blocking { asyncClient.models(options) }
 
@@ -226,23 +290,33 @@ internal class TypeSafeSyncApi(private val asyncClient: TypeSafeApi) : TypeSafeC
 
     override fun withRawResponse(): TypeSafeClientRaw = TypeSafeSyncRawApi(asyncClient)
 
-    override fun withOptions(modifier: ConfigModifier): TypeSafeClient = TypeSafeSyncApi(asyncClient.withOptions(modifier))
+    override fun withOptions(modifier: ConfigModifier): TypeSafeClient =
+        TypeSafeSyncApi(asyncClient.withOptions(modifier))
 
     override fun close() = asyncClient.close()
 }
 
 internal class TypeSafeSyncRawApi(private val asyncClient: TypeSafeApi) : TypeSafeClientRaw {
 
-    override fun systemOne(request: SystemOneRequest, options: RequestOptions): HttpResponseFor<SystemOneResult> = blocking { asyncClient.rawSystemOne(request, options) }
+    override fun systemOne(request: SystemOneRequest, options: RequestOptions): HttpResponseFor<SystemOneResult> =
+        blocking {
+            asyncClient.rawSystemOne(request, options)
+        }
 
-    override fun models(options: RequestOptions): HttpResponseFor<List<ModelCard>> = blocking { asyncClient.rawModels(options) }
+    override fun models(options: RequestOptions): HttpResponseFor<List<ModelCard>> = blocking {
+        asyncClient.rawModels(options)
+    }
 }
 
 internal class TypeSafeAsyncRawApi(private val asyncClient: TypeSafeApi) : TypeSafeClientRawAsync {
 
-    override suspend fun systemOne(request: SystemOneRequest, options: RequestOptions): HttpResponseFor<SystemOneResult> = asyncClient.rawSystemOne(request, options)
+    override suspend fun systemOne(
+        request: SystemOneRequest,
+        options: RequestOptions,
+    ): HttpResponseFor<SystemOneResult> = asyncClient.rawSystemOne(request, options)
 
-    override suspend fun models(options: RequestOptions): HttpResponseFor<List<ModelCard>> = asyncClient.rawModels(options)
+    override suspend fun models(options: RequestOptions): HttpResponseFor<List<ModelCard>> =
+        asyncClient.rawModels(options)
 }
 
 private fun <T> blocking(block: suspend () -> T): T {
@@ -250,7 +324,11 @@ private fun <T> blocking(block: suspend () -> T): T {
     return runBlocking { block() }
 }
 
-private fun Throwable.isTimeout(): Boolean = this is HttpRequestTimeoutException || this is ConnectTimeoutException || this is SocketTimeoutException
+private fun Throwable.isTimeout(): Boolean = generateSequence(this) { it.cause }.take(MAX_CAUSE_DEPTH).any {
+    it is HttpRequestTimeoutException || it is ConnectTimeoutException || it is SocketTimeoutException
+}
+
+private const val MAX_CAUSE_DEPTH = 8
 
 internal fun sanitizeUrl(url: String): String = URLBuilder().takeFrom(url).apply {
     user = null
@@ -274,7 +352,10 @@ internal fun apiException(status: Int, body: String?, headers: Headers, endpoint
 }
 
 private fun errorMessage(status: Int, body: String?, endpoint: String, requestId: String?): String {
-    val reason = if (status == 529) "Overloaded" else HttpStatusCode.allStatusCodes.firstOrNull { it.value == status }?.description
+    val reason = when (status) {
+        529 -> "Overloaded"
+        else -> HttpStatusCode.allStatusCodes.firstOrNull { it.value == status }?.description
+    }
     val detail = body?.let(::errorDetail)
     return buildString {
         append(status)

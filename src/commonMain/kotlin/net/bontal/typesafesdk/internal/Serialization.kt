@@ -104,19 +104,28 @@ internal class ResponseFieldException(val fieldPath: String, message: String) : 
 
 private fun child(path: String, key: String): String = if (path.isEmpty()) key else "$path.$key"
 
-private fun JsonElement.obj(path: String): JsonObject = this as? JsonObject ?: throw ResponseFieldException(path.ifEmpty { "<root>" }, "expected an object")
+private fun JsonElement.obj(path: String): JsonObject =
+    this as? JsonObject ?: throw ResponseFieldException(path.ifEmpty { "<root>" }, "expected an object")
 
-private fun JsonObject.field(path: String, key: String): JsonElement = this[key]?.takeUnless { it is JsonNull } ?: throw ResponseFieldException(child(path, key), "missing required field")
+private fun JsonObject.field(path: String, key: String): JsonElement =
+    this[key]?.takeUnless { it is JsonNull } ?: throw ResponseFieldException(child(path, key), "missing required field")
 
-private fun JsonElement.string(path: String): String = (this as? JsonPrimitive)?.takeIf { it.isString }?.content ?: throw ResponseFieldException(path, "expected a string")
+private fun JsonElement.string(path: String): String =
+    (this as? JsonPrimitive)?.takeIf { it.isString }?.content ?: throw ResponseFieldException(path, "expected a string")
 
-private fun JsonElement.number(path: String): Double = (this as? JsonPrimitive)?.takeUnless { it.isString }?.doubleOrNull ?: throw ResponseFieldException(path, "expected a number")
+private fun JsonElement.number(path: String): Double =
+    (this as? JsonPrimitive)?.takeUnless { it.isString }?.doubleOrNull
+        ?: throw ResponseFieldException(path, "expected a number")
 
-private fun JsonElement.integer(path: String): Long = (this as? JsonPrimitive)?.takeUnless { it.isString }?.longOrNull ?: throw ResponseFieldException(path, "expected an integer")
+private fun JsonElement.integer(path: String): Long = (this as? JsonPrimitive)?.takeUnless { it.isString }?.longOrNull
+    ?: throw ResponseFieldException(path, "expected an integer")
 
-private fun JsonElement.entry(path: String): Entry = toEntryOrNull() ?: throw ResponseFieldException(path, "expected a string, object, or array")
+private fun JsonElement.entry(path: String): Entry =
+    toEntryOrNull() ?: throw ResponseFieldException(path, "expected a string, object, or array")
 
-private fun JsonElement.numbers(path: String): Map<String, Double> = obj(path).mapValues { (key, value) -> value.number(child(path, key)) }
+private fun JsonElement.numbers(path: String): Map<String, Double> = obj(path).mapValues { (key, value) ->
+    value.number(child(path, key))
+}
 
 internal fun JsonElement.toSystemOneResult(
     requestId: String?,
@@ -173,7 +182,8 @@ private fun JsonElement.toAnswer(path: String, type: String): Answer? {
 }
 
 internal fun JsonElement.toModelCards(): List<ModelCard> {
-    val models = obj("").field("", "models") as? JsonArray ?: throw ResponseFieldException("models", "expected an array")
+    val models =
+        obj("").field("", "models") as? JsonArray ?: throw ResponseFieldException("models", "expected an array")
     return models.mapIndexed { index, element ->
         val path = "models.$index"
         val card = element.obj(path)
@@ -186,19 +196,21 @@ internal fun JsonElement.toModelCards(): List<ModelCard> {
 }
 
 internal fun errorDetail(body: String): String? {
-    val json = runCatching { DefaultJson.parseToJsonElement(body) }.getOrNull()
-        ?: return body.trim().take(MAX_DETAIL_LENGTH).ifEmpty { null }
-    val root = json as? JsonObject ?: return null
+    val rawText = body.trim().take(MAX_DETAIL_LENGTH).ifEmpty { null }
+    val json = runCatching { DefaultJson.parseToJsonElement(body) }.getOrNull() ?: return rawText
+    val root = json as? JsonObject ?: return (json as? JsonPrimitive)?.textOrNull() ?: rawText
     val detail = when (val detail = root["detail"]) {
-        is JsonPrimitive -> detail.content
         is JsonArray -> validationDetail(detail)
         is JsonObject -> detail.message()
-        else -> root.message() ?: (root["error"] as? JsonObject)?.message()
-    }
+        is JsonPrimitive -> detail.textOrNull()
+        null -> null
+    } ?: root.message() ?: (root["error"] as? JsonObject)?.message()
     return detail?.let(::issuesDetail) ?: detail
 }
 
-private fun JsonObject.message(): String? = (this["message"] as? JsonPrimitive)?.content
+private fun JsonObject.message(): String? = (this["message"] as? JsonPrimitive)?.textOrNull()
+
+private fun JsonPrimitive.textOrNull(): String? = if (this is JsonNull) null else content.ifBlank { null }
 
 private fun issuesDetail(message: String): String? {
     val issues = runCatching { DefaultJson.parseToJsonElement(message) }.getOrNull() as? JsonArray ?: return null

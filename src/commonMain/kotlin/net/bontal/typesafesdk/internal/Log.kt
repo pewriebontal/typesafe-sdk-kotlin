@@ -5,7 +5,8 @@ import net.bontal.typesafesdk.TypeSafeConfig
 
 internal class Log(val config: TypeSafeConfig) {
 
-    fun isEnabled(level: LogLevel): Boolean = level != LogLevel.OFF && config.logLevel != LogLevel.OFF && level >= config.logLevel
+    fun isEnabled(level: LogLevel): Boolean =
+        level != LogLevel.OFF && config.logLevel != LogLevel.OFF && level >= config.logLevel
 
     inline fun debug(message: () -> String) = log(LogLevel.DEBUG, message)
 
@@ -18,13 +19,15 @@ internal class Log(val config: TypeSafeConfig) {
     }
 }
 
-internal fun redactHeaders(headers: List<Pair<String, String>>): String = headers.joinToString(prefix = "{", postfix = "}") { (name, value) ->
-    "$name: ${if (isSecretHeader(name)) "<redacted>" else value}"
-}
+internal fun redactHeaders(headers: Iterable<Map.Entry<String, List<String>>>): String =
+    headers.joinToString(prefix = "{", postfix = "}") { (name, values) ->
+        "$name: ${if (isSecretHeader(name)) "<redacted>" else values.joinToString()}"
+    }
 
 private fun isSecretHeader(name: String): Boolean {
     val normalized = name.lowercase().replace('_', '-')
     return SECRET_HEADER_MARKERS.any { it in normalized }
 }
 
-private val SECRET_HEADER_MARKERS = listOf("auth", "cookie", "api-key", "apikey", "token", "secret", "password", "session")
+private val SECRET_HEADER_MARKERS =
+    listOf("auth", "cookie", "api-key", "apikey", "token", "secret", "password", "session")

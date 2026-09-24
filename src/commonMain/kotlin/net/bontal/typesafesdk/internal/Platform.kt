@@ -12,5 +12,6 @@ internal expect fun checkNotMainThread()
 
 internal expect fun defaultLogger(): TypeSafeLogger
 
-internal fun readSetting(property: String, environmentVariable: String): String? = getSystemProperty(property)?.trim()?.ifEmpty { null }
-    ?: getEnvironmentVariable(environmentVariable)?.trim()?.ifEmpty { null }
+internal fun readSetting(property: String, environmentVariable: String): String? =
+    getSystemProperty(property)?.trim()?.ifEmpty { null }
+        ?: getEnvironmentVariable(environmentVariable)?.trim()?.ifEmpty { null }

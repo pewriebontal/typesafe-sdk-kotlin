@@ -41,8 +41,9 @@ public class TypeSafeConfig private constructor(
 
     public val timeoutMillis: Long get() = timeout.inWholeMilliseconds
 
-    override fun toString(): String = "TypeSafeConfig(apiKey=***, baseUrl=$baseUrl, defaultModel=$defaultModel, timeout=$timeout, retry=$retry, " +
-        "headers=${headers.keys}, logLevel=$logLevel)"
+    override fun toString(): String =
+        "TypeSafeConfig(apiKey=***, baseUrl=$baseUrl, defaultModel=$defaultModel, timeout=$timeout, retry=$retry, " +
+            "headers=${headers.keys}, logLevel=$logLevel)"
 
     public fun toBuilder(): Builder = Builder()
         .apiKey(apiKey)
@@ -89,29 +90,33 @@ public class TypeSafeConfig private constructor(
 
         public fun engine(engine: HttpClientEngine?): Builder = apply { this.engine = engine }
 
-        public fun httpClientConfig(httpClientConfig: HttpClientConfigurer?): Builder = apply { this.httpClientConfig = httpClientConfig }
+        public fun httpClientConfig(httpClientConfig: HttpClientConfigurer?): Builder =
+            apply { this.httpClientConfig = httpClientConfig }
 
         public fun logLevel(logLevel: LogLevel): Builder = apply { this.logLevel = logLevel }
 
         public fun logger(logger: TypeSafeLogger): Builder = apply { this.logger = logger }
 
-        public fun build(): TypeSafeConfig = TypeSafeConfig(
-            apiKey = normalizeApiKey(
-                apiKey ?: readSetting(API_KEY_PROPERTY, API_KEY_ENV) ?: throw IllegalStateException(
-                    "apiKey is required: set it on the builder, the $API_KEY_PROPERTY system property, or the " +
-                        "$API_KEY_ENV environment variable. Android apps must set it on the builder.",
+        public fun build(): TypeSafeConfig {
+            val environmentLogLevel = readSetting(LOG_LEVEL_PROPERTY, LOG_LEVEL_ENV)?.let(::parseLogLevel)
+            return TypeSafeConfig(
+                apiKey = normalizeApiKey(
+                    apiKey ?: readSetting(API_KEY_PROPERTY, API_KEY_ENV) ?: throw IllegalStateException(
+                        "apiKey is required: set it on the builder, the $API_KEY_PROPERTY system property, or the " +
+                            "$API_KEY_ENV environment variable. Android apps must set it on the builder.",
+                    ),
                 ),
-            ),
-            baseUrl = normalizeBaseUrl(baseUrl ?: readSetting(BASE_URL_PROPERTY, BASE_URL_ENV) ?: DEFAULT_BASE_URL),
-            defaultModel = defaultModel ?: readSetting(DEFAULT_MODEL_PROPERTY, DEFAULT_MODEL_ENV) ?: DEFAULT_MODEL,
-            timeout = timeout,
-            retry = retry,
-            headers = headers,
-            engine = engine,
-            httpClientConfig = httpClientConfig,
-            logLevel = logLevel ?: readSetting(LOG_LEVEL_PROPERTY, LOG_LEVEL_ENV)?.let(::parseLogLevel) ?: LogLevel.WARN,
-            logger = logger ?: defaultLogger(),
-        )
+                baseUrl = normalizeBaseUrl(baseUrl ?: readSetting(BASE_URL_PROPERTY, BASE_URL_ENV) ?: DEFAULT_BASE_URL),
+                defaultModel = defaultModel ?: readSetting(DEFAULT_MODEL_PROPERTY, DEFAULT_MODEL_ENV) ?: DEFAULT_MODEL,
+                timeout = timeout,
+                retry = retry,
+                headers = headers,
+                engine = engine,
+                httpClientConfig = httpClientConfig,
+                logLevel = logLevel ?: environmentLogLevel ?: LogLevel.WARN,
+                logger = logger ?: defaultLogger(),
+            )
+        }
     }
 
     public companion object {

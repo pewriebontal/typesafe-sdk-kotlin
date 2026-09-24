@@ -14,8 +14,16 @@ object IntentRouting {
 
     private val inbox = listOf(
         Message("chat", "free", "What are your support hours?"),
-        Message("email", "enterprise", "Our SSO login started failing after we rotated the SAML certificate this morning."),
-        Message("chat", "pro", "I want to cancel and get a refund for the unused months, and I'm considering legal action."),
+        Message(
+            "email",
+            "enterprise",
+            "Our SSO login started failing after we rotated the SAML certificate this morning.",
+        ),
+        Message(
+            "chat",
+            "pro",
+            "I want to cancel and get a refund for the unused months, and I'm considering legal action.",
+        ),
     )
 
     fun run(client: TypeSafeClient) {
@@ -61,7 +69,9 @@ object IntentRouting {
                 else -> "LLM agent with ${intent.choice} tools"
             }
             println("[${message.channel}/${message.plan}] ${message.text.take(60)}")
-            println("  ${intent.choice}, complexity ${"%.2f".format(complexity.score)} -> $handler${raw.requestId?.let { " (request $it)" }.orEmpty()}")
+            val score = "%.2f".format(complexity.score)
+            val requestId = raw.requestId?.let { " (request $it)" }.orEmpty()
+            println("  ${intent.choice}, complexity $score -> $handler$requestId")
         }
     }
 }

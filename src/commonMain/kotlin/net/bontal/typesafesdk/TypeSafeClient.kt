@@ -45,7 +45,9 @@ public interface TypeSafeClient : AutoCloseable {
 
         public fun engine(engine: HttpClientEngine?): Builder = apply { config.engine(engine) }
 
-        public fun httpClientConfig(httpClientConfig: HttpClientConfigurer?): Builder = apply { config.httpClientConfig(httpClientConfig) }
+        public fun httpClientConfig(httpClientConfig: HttpClientConfigurer?): Builder = apply {
+            config.httpClientConfig(httpClientConfig)
+        }
 
         public fun logLevel(logLevel: LogLevel): Builder = apply { config.logLevel(logLevel) }
 
@@ -82,7 +84,8 @@ public interface TypeSafeClientAsync : AutoCloseable {
 }
 
 public interface TypeSafeClientRaw {
-    public fun systemOne(request: SystemOneRequest): HttpResponseFor<SystemOneResult> = systemOne(request, RequestOptions.NONE)
+    public fun systemOne(request: SystemOneRequest): HttpResponseFor<SystemOneResult> =
+        systemOne(request, RequestOptions.NONE)
 
     public fun systemOne(request: SystemOneRequest, options: RequestOptions): HttpResponseFor<SystemOneResult>
 
@@ -92,7 +95,8 @@ public interface TypeSafeClientRaw {
 }
 
 public interface TypeSafeClientRawAsync {
-    public suspend fun systemOne(request: SystemOneRequest): HttpResponseFor<SystemOneResult> = systemOne(request, RequestOptions.NONE)
+    public suspend fun systemOne(request: SystemOneRequest): HttpResponseFor<SystemOneResult> =
+        systemOne(request, RequestOptions.NONE)
 
     public suspend fun systemOne(request: SystemOneRequest, options: RequestOptions): HttpResponseFor<SystemOneResult>
 
@@ -105,10 +109,12 @@ public interface TypeSafeClientRawAsync {
 public fun TypeSafeClient(config: TypeSafeConfig): TypeSafeClient = TypeSafeSyncApi(TypeSafeApi(config))
 
 @JvmSynthetic
-public fun TypeSafeClient(configure: TypeSafeConfig.Builder.() -> Unit): TypeSafeClient = TypeSafeClient(TypeSafeConfig.builder().apply(configure).build())
+public fun TypeSafeClient(configure: TypeSafeConfig.Builder.() -> Unit): TypeSafeClient =
+    TypeSafeClient(TypeSafeConfig.builder().apply(configure).build())
 
 @JvmSynthetic
 public fun TypeSafeClientAsync(config: TypeSafeConfig): TypeSafeClientAsync = TypeSafeApi(config)
 
 @JvmSynthetic
-public fun TypeSafeClientAsync(configure: TypeSafeConfig.Builder.() -> Unit): TypeSafeClientAsync = TypeSafeClientAsync(TypeSafeConfig.builder().apply(configure).build())
+public fun TypeSafeClientAsync(configure: TypeSafeConfig.Builder.() -> Unit): TypeSafeClientAsync =
+    TypeSafeClientAsync(TypeSafeConfig.builder().apply(configure).build())

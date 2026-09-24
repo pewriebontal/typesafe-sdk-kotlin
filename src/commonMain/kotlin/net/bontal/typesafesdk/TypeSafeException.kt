@@ -85,14 +85,10 @@ public class ApiResponseValidationException internal constructor(
     endpoint: String?,
 ) : ApiException(statusCode, message, body, headers, endpoint)
 
-public open class ApiConnectionException internal constructor(
-    message: String,
-    cause: Throwable?,
-) : TypeSafeException(message, cause)
+public open class ApiConnectionException internal constructor(message: String, cause: Throwable?) :
+    TypeSafeException(message, cause)
 
-public class ApiTimeoutException internal constructor(
-    public val timeout: Duration,
-    cause: Throwable?,
-) : ApiConnectionException("Request timed out after $timeout", cause) {
+public class ApiTimeoutException internal constructor(public val timeout: Duration, cause: Throwable?) :
+    ApiConnectionException("Request timed out after $timeout", cause) {
     public val timeoutMillis: Long get() = timeout.inWholeMilliseconds
 }

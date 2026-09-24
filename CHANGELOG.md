@@ -6,6 +6,8 @@ All notable changes to this project are documented in this file. The format is b
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-09-24
+
 ### Added
 
 - Client for the TypeSafe System One API: `POST /v1/systemone` and `GET /v1/models`.

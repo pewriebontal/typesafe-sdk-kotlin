@@ -91,17 +91,19 @@ apiValidation {
     ignoredProjects += "examples"
 }
 
+val signWithGpgCommand = providers.gradleProperty("signing.gnupg.keyName").isPresent
+
 mavenPublishing {
     publishToMavenCentral()
-    if (providers.gradleProperty("signingInMemoryKey").isPresent) {
+    if (signWithGpgCommand || providers.gradleProperty("signingInMemoryKey").isPresent) {
         signAllPublications()
     }
 
     coordinates("net.bontal", "typesafe-sdk-kotlin", version.toString())
 
     pom {
-        name = "TypeSafe SDK for Kotlin"
-        description = "Kotlin client for the TypeSafe AI System One API, for JVM"
+        name = "typesafe-sdk-kotlin"
+        description = "Independent Kotlin and Java client for the TypeSafe AI System One API, for Android and the JVM."
         inceptionYear = "2026"
         url = "https://github.com/pewriebontal/typesafe-sdk-kotlin"
 
@@ -136,6 +138,12 @@ tasks.named<Test>("jvmTest") {
     val liveTests = providers.environmentVariable("TYPESAFE_LIVE_TESTS").orElse("")
     inputs.property("TYPESAFE_LIVE_TESTS", liveTests)
     outputs.upToDateWhen { liveTests.get().isEmpty() }
+}
+
+if (signWithGpgCommand) {
+    plugins.withId("signing") {
+        extensions.configure<SigningExtension> { useGpgCmd() }
+    }
 }
 
 tasks.withType<JavaCompile>().configureEach {

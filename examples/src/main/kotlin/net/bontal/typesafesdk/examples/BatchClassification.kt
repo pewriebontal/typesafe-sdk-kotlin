@@ -69,6 +69,8 @@ object BatchClassification {
             println("${sentiment.padEnd(8)} defect=${if (defect) "yes" else "no "}  $review")
         }
         val inputTokens = results.sumOf { (_, result) -> result.usage.inputTokens }
-        println("Classified ${results.size} reviews in ${elapsed.inWholeMilliseconds} ms using $inputTokens input tokens")
+        println(
+            "Classified ${results.size} reviews in ${elapsed.inWholeMilliseconds} ms using $inputTokens input tokens",
+        )
     }
 }

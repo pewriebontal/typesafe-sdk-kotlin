@@ -7,6 +7,7 @@ import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import org.junit.Assume.assumeTrue
 import kotlin.math.abs
+import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -16,6 +17,13 @@ import kotlin.time.Duration.Companion.seconds
 
 class LiveApiTest {
 
+    private val engine = Java.create()
+
+    @AfterTest
+    fun closeEngine() {
+        engine.close()
+    }
+
     private val live = !System.getenv("TYPESAFE_LIVE_TESTS").isNullOrBlank()
 
     private val apiKey: String? = System.getenv("TYPESAFE_API_KEY")?.trim()?.ifEmpty { null }
@@ -24,7 +32,7 @@ class LiveApiTest {
 
     private fun client(key: String): TypeSafeClient = TypeSafeClient {
         apiKey(key)
-        engine(Java.create())
+        engine(engine)
         timeout(30.seconds)
     }
 
@@ -32,7 +40,7 @@ class LiveApiTest {
         apiKey(key)
         baseUrl(OPENROUTER_BASE_URL)
         defaultModel(OPENROUTER_MODEL)
-        engine(Java.create())
+        engine(engine)
         timeout(30.seconds)
     }
 
@@ -86,7 +94,10 @@ class LiveApiTest {
         assertEquals("POST https://api.typesafe.ai/v1/systemone", error.endpoint)
         assertTrue(error.requestId!!.startsWith("req_"), error.requestId)
         assertTrue(error.body!!.contains("authentication_error"), error.body)
-        assertTrue(error.message!!.startsWith("401 Unauthorized from POST https://api.typesafe.ai/v1/systemone: "), error.message)
+        assertTrue(
+            error.message!!.startsWith("401 Unauthorized from POST https://api.typesafe.ai/v1/systemone: "),
+            error.message,
+        )
         assertTrue(!error.message!!.contains("{"), error.message)
     }
 
@@ -140,7 +151,12 @@ class LiveApiTest {
                     Entry(
                         buildJsonObject {
                             put("subject", "Duplicate charge")
-                            put("messages", buildJsonArray { add(kotlinx.serialization.json.JsonPrimitive("Please refund me.")) })
+                            put(
+                                "messages",
+                                buildJsonArray {
+                                    add(kotlinx.serialization.json.JsonPrimitive("Please refund me."))
+                                },
+                            )
                         },
                     ),
                 )
@@ -186,7 +202,10 @@ class LiveApiTest {
             openRouterClient("sk-or-invalid-key-for-sdk-tests").use { it.systemOne(ticket()) }
         }
         assertEquals("POST https://openrouter.ai/api/v1/systemone", error.endpoint)
-        assertTrue(error.message!!.startsWith("401 Unauthorized from POST https://openrouter.ai/api/v1/systemone: "), error.message)
+        assertTrue(
+            error.message!!.startsWith("401 Unauthorized from POST https://openrouter.ai/api/v1/systemone: "),
+            error.message,
+        )
         assertTrue(!error.message!!.contains("{"), error.message)
     }
 

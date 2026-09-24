@@ -11,6 +11,7 @@ trim_trailing_whitespace = true
 [*.{kts,kt}]
 ij_kotlin_code_style_defaults = KOTLIN_OFFICIAL
 ktlint_code_style = intellij_idea
+max_line_length = 120
 
 [*.{yml,yaml}]
 indent_size = 2

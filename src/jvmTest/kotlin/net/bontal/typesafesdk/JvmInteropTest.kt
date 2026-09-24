@@ -84,11 +84,14 @@ class JvmInteropTest {
     private companion object {
         const val SYSTEM_ONE_RESPONSE = """
             {"model":"jev-1.13.0",
-             "answers":{"department":{"type":"choice","choice":"technical","confidence":0.78,"probabilities":{"technical":0.85,"billing":0.15}},
-                        "spam":{"type":"noul","noul":0.02}},
+             "answers":{
+               "department":{"type":"choice","choice":"technical","confidence":0.78,
+                             "probabilities":{"technical":0.85,"billing":0.15}},
+               "spam":{"type":"noul","noul":0.02}},
              "usage":{"input_tokens":392,"output_tokens":65}}
         """
 
-        const val MODELS_RESPONSE = """{"models":[{"name":"jev-latest","description":"General-purpose.","release_date":"2026-09-15"}]}"""
+        const val MODELS_RESPONSE =
+            """{"models":[{"name":"jev-latest","description":"General-purpose.","release_date":"2026-09-15"}]}"""
     }
 }
